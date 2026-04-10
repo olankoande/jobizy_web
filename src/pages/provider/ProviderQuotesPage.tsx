@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "../../app/AppProvider";
 import { AppIcon } from "../../app/AppIcon";
-import { CategoryIcon } from "../../app/CategoryIcon";
 import { getProviderQuotes, withdrawQuote } from "../../lib/api";
 import type { ProviderQuote } from "../../types";
 import { EmptyState, SectionIntro, StatCard } from "../shared/Shared";
@@ -35,7 +34,7 @@ const REQUEST_STATUS: Record<string, { fr: string; en: string; tone: string }> =
 
 export function ProviderQuotesPage() {
   const navigate = useNavigate();
-  const { locale, session, subscriptions, services, categories } = useApp();
+  const { locale, session, subscriptions } = useApp();
   const [quotes, setQuotes] = useState<ProviderQuote[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -145,7 +144,7 @@ export function ProviderQuotesPage() {
                     )}
                     {quote.proposed_date && (
                       <span className="status-chip">
-                        <AppIcon name="calendar" size={13} style={{ marginRight: "0.2rem" }} />
+                        <span style={{ marginRight: "0.2rem", display: "inline-flex" }}><AppIcon name="calendar" size={13} /></span>
                         {formatDate(quote.proposed_date)}
                       </span>
                     )}
@@ -161,7 +160,7 @@ export function ProviderQuotesPage() {
                   {/* Meta */}
                   <div className="request-card-details" style={{ marginBottom: "0.75rem" }}>
                     <span>
-                      <AppIcon name="calendar" size={13} style={{ marginRight: "0.2rem" }} />
+                      <span style={{ marginRight: "0.2rem", display: "inline-flex" }}><AppIcon name="calendar" size={13} /></span>
                       {locale === "en-CA" ? "Sent" : "Envoyée"} {formatDate(quote.submitted_at ?? quote.updated_at)}
                     </span>
                     {declined > 0 && quote.status === "withdrawn" && (

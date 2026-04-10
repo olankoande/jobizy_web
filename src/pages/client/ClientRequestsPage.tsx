@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useApp } from "../../app/AppProvider";
 import { AppIcon } from "../../app/AppIcon";
 import { CategoryIcon } from "../../app/CategoryIcon";
-import { ApiResponseError, confirmPublicationPayment, getQuotes, publishRequest, rejectQuote, updateRequest } from "../../lib/api";
+import { ApiResponseError, confirmPublicationPayment, getQuotes, rejectQuote, updateRequest } from "../../lib/api";
 import type { Quote } from "../../types";
 import { SectionIntro } from "../shared/Shared";
 

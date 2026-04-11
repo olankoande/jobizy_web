@@ -5,7 +5,7 @@ COPY package.json package-lock.json* ./
 RUN npm ci
 
 COPY . .
-ARG VITE_API_BASE_URL=http://localhost:3001/api/v1
+ARG VITE_API_BASE_URL=https://jobizybackend.kikandi.com:3001/api/v1
 ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
 RUN npx tsc -p tsconfig.app.json --pretty false && npx vite build
 

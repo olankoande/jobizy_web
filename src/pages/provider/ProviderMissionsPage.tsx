@@ -4,6 +4,7 @@ import { useApp } from "../../app/AppProvider";
 import { createReview } from "../../lib/api";
 import type { Mission } from "../../types";
 import { EmptyState, SectionIntro, StatCard } from "../shared/Shared";
+import { Modal } from "../../components/Modal";
 
 function formatDate(value?: string | null) {
   if (!value) return "—";
@@ -203,7 +204,7 @@ export function ProviderMissionsPage() {
                     <button className="ghost-button" onClick={() => navigate(`/${locale}/pro/messages`)} type="button">
                       {fr ? "Contacter le client" : "Contact client"}
                     </button>
-                    {canReview && openReviewFor !== mission.id && (
+                    {canReview && (
                       <button className="btn btn-outline btn-sm" onClick={() => setOpenReviewFor(mission.id)} type="button">
                         {fr ? "Noter le client" : "Rate client"}
                       </button>
@@ -212,23 +213,39 @@ export function ProviderMissionsPage() {
                       <span style={{ fontSize: "0.78rem", color: "#10b981" }}>✓ {fr ? "Client noté" : "Client rated"}</span>
                     )}
                   </div>
-
-                  {openReviewFor === mission.id && session && (
-                    <ProviderReviewForm
-                      locale={locale}
-                      mission={mission}
-                      onCancel={() => setOpenReviewFor(null)}
-                      onDone={() => {
-                        setReviewedMissionIds((prev) => [...prev, mission.id]);
-                        setOpenReviewFor(null);
-                      }}
-                    />
-                  )}
                 </article>
               );
             })
           )}
         </div>
+
+        {openReviewFor && session && (() => {
+          const mission = missions.find((m) => m.id === openReviewFor);
+          if (!mission) return null;
+          return (
+            <Modal onClose={() => setOpenReviewFor(null)}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                <h4 style={{ margin: 0 }}>{fr ? "Noter le client" : "Rate the client"}</h4>
+                <button className="ghost-button compact-button" onClick={() => setOpenReviewFor(null)} type="button">
+                  {fr ? "Fermer" : "Close"}
+                </button>
+              </div>
+              <p style={{ fontSize: "0.8rem", color: "#6b7280", marginBottom: "0.75rem" }}>
+                {fr ? "Mission" : "Mission"} #{mission.id.slice(0, 8)}
+                {mission.completed_at && ` · ${fr ? "Terminée le" : "Completed"} ${formatDate(mission.completed_at)}`}
+              </p>
+              <ProviderReviewForm
+                locale={locale}
+                mission={mission}
+                onCancel={() => setOpenReviewFor(null)}
+                onDone={() => {
+                  setReviewedMissionIds((prev) => [...prev, mission.id]);
+                  setOpenReviewFor(null);
+                }}
+              />
+            </Modal>
+          );
+        })()}
       </section>
     </section>
   );

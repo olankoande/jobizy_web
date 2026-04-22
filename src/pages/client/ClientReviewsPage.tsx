@@ -3,6 +3,7 @@ import { createReview, getMyClientReputation } from "../../lib/api";
 import { useApp } from "../../app/AppProvider";
 import type { Review } from "../../types";
 import { EmptyState, SectionIntro } from "../shared/Shared";
+import { Modal } from "../../components/Modal";
 
 function formatDate(value?: string | null) {
   if (!value) return "—";
@@ -175,32 +176,47 @@ export function ClientReviewsPage() {
                   </div>
                   <span className="status-chip status-chip-success">{fr ? "Terminée" : "Completed"}</span>
                 </div>
-                {openFormFor === mission.id ? (
-                  <ReviewForm
-                    locale={locale}
-                    missionId={mission.id}
-                    providerProfileId={mission.provider_profile_id}
-                    onDone={async () => {
-                      setSubmittedMissionIds((prev) => [...prev, mission.id]);
-                      setOpenFormFor(null);
-                      await refresh();
-                    }}
-                  />
-                ) : (
-                  <div className="cta-row">
-                    <button
-                      className="primary-button"
-                      onClick={() => setOpenFormFor(mission.id)}
-                      type="button"
-                    >
-                      {fr ? "Laisser un avis" : "Leave a review"}
-                    </button>
-                  </div>
-                )}
+                <div className="cta-row">
+                  <button
+                    className="primary-button"
+                    onClick={() => setOpenFormFor(mission.id)}
+                    type="button"
+                  >
+                    {fr ? "Laisser un avis" : "Leave a review"}
+                  </button>
+                </div>
               </article>
             ))
           )}
         </div>
+
+        {openFormFor && (() => {
+          const mission = pendingReview.find((m) => m.id === openFormFor);
+          if (!mission) return null;
+          return (
+            <Modal onClose={() => setOpenFormFor(null)}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                <h4 style={{ margin: 0 }}>{fr ? "Laisser un avis" : "Leave a review"}</h4>
+                <button className="ghost-button compact-button" onClick={() => setOpenFormFor(null)} type="button">
+                  {fr ? "Fermer" : "Close"}
+                </button>
+              </div>
+              <p style={{ fontSize: "0.8rem", color: "#6b7280", marginBottom: "0.75rem" }}>
+                {fr ? "Terminée le" : "Completed"} {formatDate(mission.completed_at)}
+              </p>
+              <ReviewForm
+                locale={locale}
+                missionId={mission.id}
+                providerProfileId={mission.provider_profile_id}
+                onDone={async () => {
+                  setSubmittedMissionIds((prev) => [...prev, mission.id]);
+                  setOpenFormFor(null);
+                  await refresh();
+                }}
+              />
+            </Modal>
+          );
+        })()}
       </section>
 
       {/* My client reputation */}

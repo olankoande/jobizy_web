@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useApp } from "../../app/AppProvider";
 import { AppIcon } from "../../app/AppIcon";
@@ -6,6 +6,7 @@ import { CategoryIcon } from "../../app/CategoryIcon";
 import { ApiResponseError, confirmPublicationPayment, getQuotes, rejectQuote, updateRequest } from "../../lib/api";
 import type { Quote } from "../../types";
 import { SectionIntro } from "../shared/Shared";
+import { Modal } from "../../components/Modal";
 
 const REQUEST_DRAFT_STORAGE_KEY = "jobizy_request_wizard_draft";
 
@@ -164,8 +165,6 @@ export function ClientRequestsPage() {
   const [publishingDraftId, setPublishingDraftId] = useState<string | null>(null);
   const [editingDraftId, setEditingDraftId] = useState<string | null>(null);
   const editingRequestStatus = editingDraftId ? (requests.find((r) => r.id === editingDraftId)?.status ?? "draft") : null;
-  const expansionRef = useRef<HTMLDivElement | null>(null);
-
   useEffect(() => {
     if (!selectedReqId || !session) { setQuotes([]); return; }
     setQuotesLoading(true);
@@ -175,14 +174,15 @@ export function ClientRequestsPage() {
       .finally(() => setQuotesLoading(false));
   }, [selectedReqId, session, locale]);
 
-  useEffect(() => {
-    if (selectedReqId && expansionRef.current) {
-      setTimeout(() => expansionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
-    }
-  }, [selectedReqId]);
-
   const [awardError, setAwardError] = useState("");
   const [compareMode, setCompareMode] = useState(false);
+
+  // Close modal when request becomes awarded
+  useEffect(() => {
+    if (!selectedReqId) return;
+    const req = requests.find((r) => r.id === selectedReqId);
+    if (req?.status === "awarded") setSelectedReqId(null);
+  }, [requests, selectedReqId]);
 
   async function handleAwardQuote(requestId: string, quoteId: string) {
     if (!window.confirm(locale === "en-CA" ? "Choose this provider? This will create a mission and decline all other offers." : "Choisir ce prestataire ? Cela créera une mission et refusera les autres offres.")) return;
@@ -544,7 +544,6 @@ export function ClientRequestsPage() {
                     {/* ── Card ── */}
                     <article
                       className={`provider-request-card${isSelected ? " provider-request-card-active" : ""}`}
-                      style={{ borderBottomLeftRadius: isSelected ? 0 : undefined, borderBottomRightRadius: isSelected ? 0 : undefined, borderBottom: isSelected ? "none" : undefined }}
                     >
                       {/* Title + status */}
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "0.75rem", marginBottom: "0.35rem" }}>
@@ -780,243 +779,225 @@ export function ClientRequestsPage() {
                       </div>
                     </article>
 
-                    {/* ── Inline offers expansion ── */}
-                    {isSelected && (
-                      <div
-                        ref={expansionRef}
-                        style={{
-                          border: "1px solid #e5e7eb",
-                          borderTop: "none",
-                          borderBottomLeftRadius: "0.75rem",
-                          borderBottomRightRadius: "0.75rem",
-                          padding: "1.25rem",
-                          background: "#f9fafb",
-                        }}
-                      >
-                        {awardError && (
-                          <p className="notice notice-error" style={{ marginBottom: "1rem" }}>{awardError}</p>
-                        )}
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.5rem" }}>
-                          <div>
-                            <h4 style={{ margin: "0 0 0.1rem" }}>
-                              {locale === "en-CA" ? "Offers received" : "Offres reçues"}
-                              {activeQuotes.length > 0 && <span style={{ fontWeight: 400, color: "#6b7280", marginLeft: "0.4rem" }}>({activeQuotes.length})</span>}
-                            </h4>
-                            {!isAwarded && activeQuotes.length > 0 && (
-                              <p style={{ margin: 0, fontSize: "0.78rem", color: "#6b7280" }}>
-                                {locale === "en-CA" ? "Choose a provider to create a mission." : "Choisissez un prestataire pour créer une mission."}
-                              </p>
-                            )}
-                          </div>
-                          <div style={{ display: "flex", gap: "0.4rem" }}>
-                            {activeQuotes.length > 1 && (
-                              <button
-                                className="ghost-button compact-button"
-                                onClick={() => setCompareMode((v) => !v)}
-                                type="button"
-                                style={compareMode ? { background: "rgba(47,140,171,0.10)", borderColor: "var(--accent)", color: "var(--accent-strong)" } : {}}
-                              >
-                                {compareMode
-                                  ? (locale === "en-CA" ? "List view" : "Vue liste")
-                                  : (locale === "en-CA" ? "Compare side by side" : "Comparer côte à côte")}
-                              </button>
-                            )}
-                            <button className="ghost-button compact-button" onClick={() => setSelectedReqId(null)} type="button">
-                              {locale === "en-CA" ? "Close" : "Fermer"}
-                            </button>
-                          </div>
-                        </div>
-
-                        {quotesLoading ? (
-                          <div className="skeleton-card">
-                            <div className="skeleton-line" style={{ width: "60%" }} />
-                            <div className="skeleton-line" style={{ width: "100%" }} />
-                          </div>
-                        ) : activeQuotes.length === 0 ? (
-                          <div className="empty-state empty-state-soft">
-                            <p>{locale === "en-CA" ? "No offers received yet." : "Aucune offre reçue pour le moment."}</p>
-                          </div>
-                        ) : compareMode ? (
-                          /* ── Vue comparaison ── */
-                          <div style={{ overflowX: "auto", paddingBottom: "0.5rem" }}>
-                            <div style={{ display: "grid", gridTemplateColumns: `repeat(${activeQuotes.length}, minmax(220px, 1fr))`, gap: "0.75rem", minWidth: `${activeQuotes.length * 240}px` }}>
-                              {activeQuotes.map((quote) => {
-                                const fmt = new Intl.NumberFormat("fr-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 });
-                                return (
-                                  <div
-                                    key={quote.id}
-                                    style={{
-                                      border: `2px solid ${quote.status === "accepted" ? "#bbf7d0" : "var(--border)"}`,
-                                      borderRadius: "0.875rem",
-                                      padding: "1rem",
-                                      background: quote.status === "accepted" ? "#f0fdf4" : "var(--surface)",
-                                      display: "flex",
-                                      flexDirection: "column",
-                                      gap: "0.6rem",
-                                    }}
-                                  >
-                                    {/* Nom */}
-                                    <div>
-                                      <strong style={{ fontSize: "0.95rem", display: "block" }}>
-                                        {quote.business_name || quote.display_name || (locale === "en-CA" ? "Provider" : "Prestataire")}
-                                      </strong>
-                                      {quote.status === "accepted" && (
-                                        <span className="status-chip status-chip-awarded" style={{ fontSize: "0.7rem", marginTop: "0.2rem" }}>
-                                          {locale === "en-CA" ? "✓ Selected" : "✓ Sélectionné"}
-                                        </span>
-                                      )}
-                                    </div>
-                                    {/* Note */}
-                                    <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.82rem" }}>
-                                      {quote.rating_avg != null && Number(quote.rating_avg) > 0 ? (
-                                        <span style={{ color: "#b45309", fontWeight: 700 }}>★ {Number(quote.rating_avg).toFixed(1)}</span>
-                                      ) : (
-                                        <span style={{ color: "#9ca3af" }}>★ —</span>
-                                      )}
-                                      {quote.rating_count ? <span style={{ color: "#6b7280" }}>({quote.rating_count} avis)</span> : null}
-                                    </div>
-                                    {/* Prix */}
-                                    <div style={{ borderTop: "1px solid var(--border)", paddingTop: "0.5rem" }}>
-                                      <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", display: "block", marginBottom: "0.15rem" }}>
-                                        {locale === "en-CA" ? "Quoted price" : "Prix proposé"}
-                                      </span>
-                                      <strong style={{ fontSize: "1.15rem", color: "var(--surface-ink)" }}>
-                                        {quote.estimated_price_cents != null ? fmt.format(quote.estimated_price_cents / 100) : "—"}
-                                      </strong>
-                                    </div>
-                                    {/* Date */}
-                                    <div>
-                                      <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", display: "block", marginBottom: "0.15rem" }}>
-                                        {locale === "en-CA" ? "Proposed date" : "Date proposée"}
-                                      </span>
-                                      <span style={{ fontSize: "0.85rem" }}>{quote.proposed_date ? formatDate(quote.proposed_date) : "—"}</span>
-                                    </div>
-                                    {/* Message */}
-                                    <div style={{ flex: 1 }}>
-                                      <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", display: "block", marginBottom: "0.15rem" }}>
-                                        {locale === "en-CA" ? "Message" : "Message"}
-                                      </span>
-                                      <p style={{ fontSize: "0.8rem", color: "#374151", lineHeight: 1.45, margin: 0 }}>
-                                        {quote.message.length > 120 ? `${quote.message.slice(0, 120)}…` : quote.message}
-                                      </p>
-                                    </div>
-                                    {/* Actions */}
-                                    {quote.status !== "accepted" && (
-                                      <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", borderTop: "1px solid var(--border)", paddingTop: "0.6rem", marginTop: "auto" }}>
-                                        <button
-                                          className="ghost-button compact-button"
-                                          onClick={() => navigate(quote.conversation_id ? `/${locale}/app/messages?conversation_id=${quote.conversation_id}` : `/${locale}/app/messages?request_id=${req.id}`)}
-                                          type="button"
-                                          style={{ width: "100%", justifyContent: "center" }}
-                                        >
-                                          {locale === "en-CA" ? "Message" : "Discuter"}
-                                        </button>
-                                        {!isAwarded && (
-                                          <button
-                                            className="primary-button compact-button"
-                                            disabled={awardingId === quote.id}
-                                            onClick={() => void handleAwardQuote(req.id, quote.id)}
-                                            type="button"
-                                            style={{ width: "100%", justifyContent: "center" }}
-                                          >
-                                            {awardingId === quote.id ? "..." : (locale === "en-CA" ? "Choose →" : "Choisir →")}
-                                          </button>
-                                        )}
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        ) : (
-                          /* ── Vue liste ── */
-                          <div className="stack">
-                            {activeQuotes.map((quote) => (
-                              <div
-                                key={quote.id}
-                                style={{
-                                  border: `1px solid ${quote.status === "accepted" ? "#bbf7d0" : "#e5e7eb"}`,
-                                  borderRadius: "0.75rem",
-                                  padding: "1rem 1.1rem",
-                                  background: quote.status === "accepted" ? "#f0fdf4" : "#ffffff",
-                                }}
-                              >
-                                {/* Ligne prestataire + prix */}
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "0.75rem", marginBottom: "0.5rem", flexWrap: "wrap" }}>
-                                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
-                                    <strong style={{ fontSize: "0.95rem" }}>{quote.business_name || quote.display_name || (locale === "en-CA" ? "Provider" : "Prestataire")}</strong>
-                                    {quote.rating_avg != null && Number(quote.rating_avg) > 0 && (
-                                      <span style={{ fontSize: "0.75rem", color: "#6b7280" }}>
-                                        ★ {Number(quote.rating_avg).toFixed(1)}{quote.rating_count ? ` (${quote.rating_count})` : ""}
-                                      </span>
-                                    )}
-                                    {quote.status === "accepted" && (
-                                      <span className="status-chip status-chip-success" style={{ fontSize: "0.72rem" }}>
-                                        {locale === "en-CA" ? "✓ Selected" : "✓ Sélectionné"}
-                                      </span>
-                                    )}
-                                  </div>
-                                  {quote.estimated_price_cents != null && (
-                                    <strong style={{ fontSize: "1rem", color: "#111827", flexShrink: 0 }}>
-                                      {new Intl.NumberFormat("fr-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(quote.estimated_price_cents / 100)}
-                                    </strong>
-                                  )}
-                                </div>
-
-                                {/* Message */}
-                                <p style={{ color: "#374151", fontSize: "0.875rem", margin: "0 0 0.5rem", lineHeight: 1.5 }}>{quote.message}</p>
-
-                                {/* Date proposée */}
-                                {quote.proposed_date && (
-                                  <p style={{ fontSize: "0.8rem", color: "#6b7280", margin: "0 0 0.75rem" }}>
-                                    <AppIcon name="calendar" size={12} />
-                                    {" "}{locale === "en-CA" ? "Proposed date: " : "Date proposée : "}{formatDate(quote.proposed_date)}
-                                  </p>
-                                )}
-
-                                {/* Actions */}
-                                {quote.status !== "accepted" && (
-                                  <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end", flexWrap: "wrap", borderTop: "1px solid #f3f4f6", paddingTop: "0.75rem", marginTop: "0.25rem" }}>
-                                    <button
-                                      className="ghost-button compact-button"
-                                      disabled={rejectingId === quote.id}
-                                      onClick={() => void handleRejectQuote(quote.id)}
-                                      type="button"
-                                      style={{ color: "#dc2626", borderColor: "#fca5a5" }}
-                                    >
-                                      {rejectingId === quote.id ? "..." : (locale === "en-CA" ? "Decline" : "Refuser")}
-                                    </button>
-                                    <button
-                                      className="ghost-button compact-button"
-                                      onClick={() => navigate(quote.conversation_id ? `/${locale}/app/messages?conversation_id=${quote.conversation_id}` : `/${locale}/app/messages?request_id=${req.id}`)}
-                                      type="button"
-                                    >
-                                      {locale === "en-CA" ? "Message" : "Discuter"}
-                                    </button>
-                                    {!isAwarded && (
-                                      <button
-                                        className="primary-button compact-button"
-                                        disabled={awardingId === quote.id}
-                                        onClick={() => void handleAwardQuote(req.id, quote.id)}
-                                        type="button"
-                                      >
-                                        {awardingId === quote.id ? "..." : (locale === "en-CA" ? "Choose this provider →" : "Choisir ce prestataire →")}
-                                      </button>
-                                    )}
-                                  </div>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
                   </div>
                 );
               })}
             </div>
           )}
+
+          {/* ── Modal offres ── */}
+          {selectedReqId && (() => {
+            const selectedReq = requests.find((r) => r.id === selectedReqId);
+            const activeQuotes = quotes.filter((q) => q.status !== "rejected" && q.status !== "withdrawn");
+            const isAwarded = selectedReq?.status === "awarded";
+            return (
+              <Modal onClose={() => { setSelectedReqId(null); setCompareMode(false); }}>
+                {awardError && (
+                  <p className="notice notice-error" style={{ marginBottom: "1rem" }}>{awardError}</p>
+                )}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.5rem" }}>
+                  <div>
+                    <h4 style={{ margin: "0 0 0.1rem" }}>
+                      {locale === "en-CA" ? "Offers received" : "Offres reçues"}
+                      {activeQuotes.length > 0 && <span style={{ fontWeight: 400, color: "#6b7280", marginLeft: "0.4rem" }}>({activeQuotes.length})</span>}
+                    </h4>
+                    {selectedReq && <p style={{ margin: 0, fontSize: "0.8rem", color: "#6b7280" }}>{selectedReq.title}</p>}
+                    {!isAwarded && activeQuotes.length > 0 && (
+                      <p style={{ margin: "0.2rem 0 0", fontSize: "0.78rem", color: "#6b7280" }}>
+                        {locale === "en-CA" ? "Choose a provider to create a mission." : "Choisissez un prestataire pour créer une mission."}
+                      </p>
+                    )}
+                  </div>
+                  <div style={{ display: "flex", gap: "0.4rem" }}>
+                    {activeQuotes.length > 1 && (
+                      <button
+                        className="ghost-button compact-button"
+                        onClick={() => setCompareMode((v) => !v)}
+                        type="button"
+                        style={compareMode ? { background: "rgba(47,140,171,0.10)", borderColor: "var(--accent)", color: "var(--accent-strong)" } : {}}
+                      >
+                        {compareMode
+                          ? (locale === "en-CA" ? "List view" : "Vue liste")
+                          : (locale === "en-CA" ? "Compare" : "Comparer")}
+                      </button>
+                    )}
+                    <button className="ghost-button compact-button" onClick={() => { setSelectedReqId(null); setCompareMode(false); }} type="button">
+                      {locale === "en-CA" ? "Close" : "Fermer"}
+                    </button>
+                  </div>
+                </div>
+
+                {quotesLoading ? (
+                  <div className="skeleton-card">
+                    <div className="skeleton-line" style={{ width: "60%" }} />
+                    <div className="skeleton-line" style={{ width: "100%" }} />
+                  </div>
+                ) : activeQuotes.length === 0 ? (
+                  <div className="empty-state empty-state-soft">
+                    <p>{locale === "en-CA" ? "No offers received yet." : "Aucune offre reçue pour le moment."}</p>
+                  </div>
+                ) : compareMode ? (
+                  <div style={{ overflowX: "auto", paddingBottom: "0.5rem" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: `repeat(${activeQuotes.length}, minmax(220px, 1fr))`, gap: "0.75rem", minWidth: `${activeQuotes.length * 240}px` }}>
+                      {activeQuotes.map((quote) => {
+                        const fmt = new Intl.NumberFormat("fr-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 });
+                        return (
+                          <div
+                            key={quote.id}
+                            style={{
+                              border: `2px solid ${quote.status === "accepted" ? "#bbf7d0" : "var(--border)"}`,
+                              borderRadius: "0.875rem",
+                              padding: "1rem",
+                              background: quote.status === "accepted" ? "#f0fdf4" : "var(--surface)",
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "0.6rem",
+                            }}
+                          >
+                            <div>
+                              <strong style={{ fontSize: "0.95rem", display: "block" }}>
+                                {quote.business_name || quote.display_name || (locale === "en-CA" ? "Provider" : "Prestataire")}
+                              </strong>
+                              {quote.status === "accepted" && (
+                                <span className="status-chip status-chip-awarded" style={{ fontSize: "0.7rem", marginTop: "0.2rem" }}>
+                                  {locale === "en-CA" ? "✓ Selected" : "✓ Sélectionné"}
+                                </span>
+                              )}
+                            </div>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.82rem" }}>
+                              {quote.rating_avg != null && Number(quote.rating_avg) > 0 ? (
+                                <span style={{ color: "#b45309", fontWeight: 700 }}>★ {Number(quote.rating_avg).toFixed(1)}</span>
+                              ) : (
+                                <span style={{ color: "#9ca3af" }}>★ —</span>
+                              )}
+                              {quote.rating_count ? <span style={{ color: "#6b7280" }}>({quote.rating_count} avis)</span> : null}
+                            </div>
+                            <div style={{ borderTop: "1px solid var(--border)", paddingTop: "0.5rem" }}>
+                              <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", display: "block", marginBottom: "0.15rem" }}>
+                                {locale === "en-CA" ? "Quoted price" : "Prix proposé"}
+                              </span>
+                              <strong style={{ fontSize: "1.15rem", color: "var(--surface-ink)" }}>
+                                {quote.estimated_price_cents != null ? fmt.format(quote.estimated_price_cents / 100) : "—"}
+                              </strong>
+                            </div>
+                            <div>
+                              <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", display: "block", marginBottom: "0.15rem" }}>
+                                {locale === "en-CA" ? "Proposed date" : "Date proposée"}
+                              </span>
+                              <span style={{ fontSize: "0.85rem" }}>{quote.proposed_date ? formatDate(quote.proposed_date) : "—"}</span>
+                            </div>
+                            <div style={{ flex: 1 }}>
+                              <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", display: "block", marginBottom: "0.15rem" }}>
+                                {locale === "en-CA" ? "Message" : "Message"}
+                              </span>
+                              <p style={{ fontSize: "0.8rem", color: "#374151", lineHeight: 1.45, margin: 0 }}>
+                                {quote.message.length > 120 ? `${quote.message.slice(0, 120)}…` : quote.message}
+                              </p>
+                            </div>
+                            {quote.status !== "accepted" && (
+                              <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", borderTop: "1px solid var(--border)", paddingTop: "0.6rem", marginTop: "auto" }}>
+                                <button
+                                  className="ghost-button compact-button"
+                                  onClick={() => navigate(quote.conversation_id ? `/${locale}/app/messages?conversation_id=${quote.conversation_id}` : `/${locale}/app/messages?request_id=${selectedReqId}`)}
+                                  type="button"
+                                  style={{ width: "100%", justifyContent: "center" }}
+                                >
+                                  {locale === "en-CA" ? "Message" : "Discuter"}
+                                </button>
+                                {!isAwarded && (
+                                  <button
+                                    className="primary-button compact-button"
+                                    disabled={awardingId === quote.id}
+                                    onClick={() => void handleAwardQuote(selectedReqId, quote.id)}
+                                    type="button"
+                                    style={{ width: "100%", justifyContent: "center" }}
+                                  >
+                                    {awardingId === quote.id ? "..." : (locale === "en-CA" ? "Choose →" : "Choisir →")}
+                                  </button>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="stack">
+                    {activeQuotes.map((quote) => (
+                      <div
+                        key={quote.id}
+                        style={{
+                          border: `1px solid ${quote.status === "accepted" ? "#bbf7d0" : "#e5e7eb"}`,
+                          borderRadius: "0.75rem",
+                          padding: "1rem 1.1rem",
+                          background: quote.status === "accepted" ? "#f0fdf4" : "#ffffff",
+                        }}
+                      >
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "0.75rem", marginBottom: "0.5rem", flexWrap: "wrap" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+                            <strong style={{ fontSize: "0.95rem" }}>{quote.business_name || quote.display_name || (locale === "en-CA" ? "Provider" : "Prestataire")}</strong>
+                            {quote.rating_avg != null && Number(quote.rating_avg) > 0 && (
+                              <span style={{ fontSize: "0.75rem", color: "#6b7280" }}>
+                                ★ {Number(quote.rating_avg).toFixed(1)}{quote.rating_count ? ` (${quote.rating_count})` : ""}
+                              </span>
+                            )}
+                            {quote.status === "accepted" && (
+                              <span className="status-chip status-chip-success" style={{ fontSize: "0.72rem" }}>
+                                {locale === "en-CA" ? "✓ Selected" : "✓ Sélectionné"}
+                              </span>
+                            )}
+                          </div>
+                          {quote.estimated_price_cents != null && (
+                            <strong style={{ fontSize: "1rem", color: "#111827", flexShrink: 0 }}>
+                              {new Intl.NumberFormat("fr-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(quote.estimated_price_cents / 100)}
+                            </strong>
+                          )}
+                        </div>
+                        <p style={{ color: "#374151", fontSize: "0.875rem", margin: "0 0 0.5rem", lineHeight: 1.5 }}>{quote.message}</p>
+                        {quote.proposed_date && (
+                          <p style={{ fontSize: "0.8rem", color: "#6b7280", margin: "0 0 0.75rem" }}>
+                            <AppIcon name="calendar" size={12} />
+                            {" "}{locale === "en-CA" ? "Proposed date: " : "Date proposée : "}{formatDate(quote.proposed_date)}
+                          </p>
+                        )}
+                        {quote.status !== "accepted" && (
+                          <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end", flexWrap: "wrap", borderTop: "1px solid #f3f4f6", paddingTop: "0.75rem", marginTop: "0.25rem" }}>
+                            <button
+                              className="ghost-button compact-button"
+                              disabled={rejectingId === quote.id}
+                              onClick={() => void handleRejectQuote(quote.id)}
+                              type="button"
+                              style={{ color: "#dc2626", borderColor: "#fca5a5" }}
+                            >
+                              {rejectingId === quote.id ? "..." : (locale === "en-CA" ? "Decline" : "Refuser")}
+                            </button>
+                            <button
+                              className="ghost-button compact-button"
+                              onClick={() => navigate(quote.conversation_id ? `/${locale}/app/messages?conversation_id=${quote.conversation_id}` : `/${locale}/app/messages?request_id=${selectedReqId}`)}
+                              type="button"
+                            >
+                              {locale === "en-CA" ? "Message" : "Discuter"}
+                            </button>
+                            {!isAwarded && (
+                              <button
+                                className="primary-button compact-button"
+                                disabled={awardingId === quote.id}
+                                onClick={() => void handleAwardQuote(selectedReqId, quote.id)}
+                                type="button"
+                              >
+                                {awardingId === quote.id ? "..." : (locale === "en-CA" ? "Choose this provider →" : "Choisir ce prestataire →")}
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Modal>
+            );
+          })()}
         </section>
       )}
 

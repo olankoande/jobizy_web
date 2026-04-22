@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "../../app/AppProvider";
 import { CategoryIcon } from "../../app/CategoryIcon";
 import { getMatchingRequests } from "../../lib/api";
 import type { MatchingRequest } from "../../types";
 import { EmptyState, SectionIntro, StatCard } from "../shared/Shared";
+import { Modal } from "../../components/Modal";
 
 function formatDate(value?: string | null) {
   if (!value) return "-";
@@ -90,6 +91,7 @@ export function ProviderRequestsPage() {
     setQuoteForm(emptyForm());
     setQuoteError("");
   }
+
 
   async function handleSubmitQuote(requestId: string) {
     if (!quoteForm.message.trim()) {
@@ -226,148 +228,147 @@ export function ProviderRequestsPage() {
         ) : (
           <div className="provider-request-grid">
             {visibleRequests.map((req) => (
-              <article className="provider-request-card" key={req.id}>
-                <div className="service-card-header">
-                  <div>
-                    <strong>{req.title || (locale === "en-CA" ? "Local opportunity" : "Opportunite locale")}</strong>
-                    <p>{req.description?.slice(0, 120) ?? "-"}</p>
+              <article key={req.id} className="provider-request-card">
+                  <div className="service-card-header">
+                    <div>
+                      <strong>{req.title || (locale === "en-CA" ? "Local opportunity" : "Opportunite locale")}</strong>
+                      <p>{req.description?.slice(0, 120) ?? "-"}</p>
+                    </div>
+                    <span className={req.already_quoted ? "status-chip" : "status-chip status-chip-success"}>
+                      {req.already_quoted
+                        ? (locale === "en-CA" ? "Quoted" : "Repondue")
+                        : req.urgency}
+                    </span>
                   </div>
-                  <span className={req.already_quoted ? "status-chip" : "status-chip status-chip-success"}>
-                    {req.already_quoted
-                      ? (locale === "en-CA" ? "Quoted" : "Repondue")
-                      : req.urgency}
-                  </span>
-                </div>
 
-                <div className="request-card-details">
-                  <span className="service-inline-chip">
-                    <CategoryIcon icon={req.category_icon} size={13} />
-                    {req.service_name}
-                  </span>
-                  <span>{req.zone_name}</span>
-                  <span>{formatDate(req.desired_date)}</span>
-                  <span>{formatBudget(req)}</span>
-                </div>
+                  <div className="request-card-details">
+                    <span className="service-inline-chip">
+                      <CategoryIcon icon={req.category_icon} size={13} />
+                      {req.service_name}
+                    </span>
+                    <span>{req.zone_name}</span>
+                    <span>{formatDate(req.desired_date)}</span>
+                    <span>{formatBudget(req)}</span>
+                  </div>
 
-                <div className="cta-row">
-                  {req.already_quoted ? (
+                  <div className="cta-row">
+                    {req.already_quoted ? (
+                      <button
+                        className="secondary-button"
+                        onClick={() => navigate(`/${locale}/pro/reponses`)}
+                        type="button"
+                      >
+                        {locale === "en-CA" ? "View my offer" : "Voir mon offre"}
+                      </button>
+                    ) : (
+                      <button
+                        className={quotingId === req.id ? "ghost-button" : "primary-button"}
+                        onClick={() => quotingId === req.id ? closeQuoteForm() : openQuoteForm(req.id)}
+                        type="button"
+                      >
+                        {quotingId === req.id
+                          ? (locale === "en-CA" ? "Cancel" : "Annuler")
+                          : (locale === "en-CA" ? "Send an offer" : "Envoyer une offre")}
+                      </button>
+                    )}
                     <button
-                      className="secondary-button"
-                      onClick={() => navigate(`/${locale}/pro/reponses`)}
+                      className="ghost-button"
+                      onClick={() => navigate(`/${locale}/pro/messages?request_id=${req.id}`)}
                       type="button"
                     >
-                      {locale === "en-CA" ? "View my offer" : "Voir mon offre"}
+                      {locale === "en-CA" ? "Messages" : "Messages"}
                     </button>
-                  ) : (
-                    <button
-                      className={quotingId === req.id ? "ghost-button" : "primary-button"}
-                      onClick={() => quotingId === req.id ? closeQuoteForm() : openQuoteForm(req.id)}
-                      type="button"
-                    >
-                      {quotingId === req.id
-                        ? (locale === "en-CA" ? "Cancel" : "Annuler")
-                        : (locale === "en-CA" ? "Send an offer" : "Envoyer une offre")}
-                    </button>
-                  )}
-                  <button
-                    className="ghost-button"
-                    onClick={() => navigate(`/${locale}/pro/messages?request_id=${req.id}`)}
-                    type="button"
-                  >
-                    {locale === "en-CA" ? "Messages" : "Messages"}
-                  </button>
-                </div>
+                  </div>
               </article>
             ))}
           </div>
         )}
+
+        {quotingId && activeRequest && (
+          <Modal onClose={closeQuoteForm}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "1rem", marginBottom: "1.25rem" }}>
+              <div>
+                <p className="eyebrow" style={{ margin: "0 0 0.2rem" }}>
+                  {locale === "en-CA" ? "Send an offer" : "Envoyer une offre"}
+                </p>
+                <h3 style={{ margin: 0 }}>{activeRequest.title}</h3>
+                <p style={{ color: "#6b7280", fontSize: "0.875rem", marginTop: "0.25rem" }}>
+                  {activeRequest.service_name} · {activeRequest.zone_name} · {formatDate(activeRequest.desired_date)}
+                </p>
+              </div>
+              <button className="ghost-button compact-button" onClick={closeQuoteForm} type="button" style={{ flexShrink: 0 }}>
+                {locale === "en-CA" ? "Close" : "Fermer"}
+              </button>
+            </div>
+
+            <form
+              className="stack-form"
+              onSubmit={(e) => { e.preventDefault(); void handleSubmitQuote(quotingId); }}
+            >
+              <div className="edit-form-grid">
+                <label className="field field-wide">
+                  <span>{locale === "en-CA" ? "Your message to the client *" : "Votre message au client *"}</span>
+                  <textarea
+                    minLength={5}
+                    placeholder={
+                      locale === "en-CA"
+                        ? "Introduce yourself, describe your approach, mention your experience..."
+                        : "Presentez-vous, decrivez votre approche, mentionnez votre experience..."
+                    }
+                    required
+                    rows={4}
+                    value={quoteForm.message}
+                    onChange={(e) => setQuoteForm((f) => ({ ...f, message: e.target.value }))}
+                  />
+                </label>
+                <label className="field">
+                  <span>{locale === "en-CA" ? "Estimated price (CAD, optional)" : "Prix estime (CAD, optionnel)"}</span>
+                  <input
+                    inputMode="decimal"
+                    min="0"
+                    placeholder="150"
+                    type="number"
+                    value={quoteForm.estimated_price}
+                    onChange={(e) => setQuoteForm((f) => ({ ...f, estimated_price: e.target.value }))}
+                  />
+                </label>
+                <label className="field">
+                  <span>{locale === "en-CA" ? "Proposed date (optional)" : "Date proposee (optionnel)"}</span>
+                  <input
+                    type="date"
+                    value={quoteForm.proposed_date}
+                    onChange={(e) => setQuoteForm((f) => ({ ...f, proposed_date: e.target.value }))}
+                  />
+                </label>
+                <label className="field">
+                  <span>{locale === "en-CA" ? "Estimated delay (days, optional)" : "Delai estime (jours, optionnel)"}</span>
+                  <input
+                    inputMode="numeric"
+                    min="0"
+                    placeholder="2"
+                    type="number"
+                    value={quoteForm.delay_days}
+                    onChange={(e) => setQuoteForm((f) => ({ ...f, delay_days: e.target.value }))}
+                  />
+                </label>
+              </div>
+
+              {quoteError && <p className="notice notice-error">{quoteError}</p>}
+
+              <div className="button-group">
+                <button className="ghost-button" onClick={closeQuoteForm} type="button">
+                  {locale === "en-CA" ? "Cancel" : "Annuler"}
+                </button>
+                <button className="primary-button" disabled={quoteSubmitting} type="submit">
+                  {quoteSubmitting
+                    ? (locale === "en-CA" ? "Sending..." : "Envoi en cours...")
+                    : (locale === "en-CA" ? "Send offer" : "Envoyer l'offre")}
+                </button>
+              </div>
+            </form>
+          </Modal>
+        )}
       </section>
-
-      {/* ── Inline quote form ── */}
-      {quotingId && activeRequest && (
-        <section className="panel">
-          <div className="panel-header">
-            <div>
-              <p className="eyebrow">
-                {locale === "en-CA" ? "Send an offer" : "Envoyer une offre"}
-              </p>
-              <h3 style={{ margin: 0 }}>{activeRequest.title}</h3>
-              <p style={{ color: "#6b7280", fontSize: "0.875rem", marginTop: "0.25rem" }}>
-                {activeRequest.service_name} · {activeRequest.zone_name} · {formatDate(activeRequest.desired_date)}
-              </p>
-            </div>
-            <button className="ghost-button compact-button" onClick={closeQuoteForm} type="button">
-              {locale === "en-CA" ? "Close" : "Fermer"}
-            </button>
-          </div>
-
-          <form
-            className="stack-form"
-            onSubmit={(e) => { e.preventDefault(); void handleSubmitQuote(quotingId); }}
-          >
-            <div className="edit-form-grid">
-              <label className="field field-wide">
-                <span>{locale === "en-CA" ? "Your message to the client *" : "Votre message au client *"}</span>
-                <textarea
-                  minLength={5}
-                  placeholder={
-                    locale === "en-CA"
-                      ? "Introduce yourself, describe your approach, mention your experience..."
-                      : "Presentez-vous, decrivez votre approche, mentionnez votre experience..."
-                  }
-                  required
-                  rows={4}
-                  value={quoteForm.message}
-                  onChange={(e) => setQuoteForm((f) => ({ ...f, message: e.target.value }))}
-                />
-              </label>
-              <label className="field">
-                <span>{locale === "en-CA" ? "Estimated price (CAD, optional)" : "Prix estime (CAD, optionnel)"}</span>
-                <input
-                  inputMode="decimal"
-                  min="0"
-                  placeholder="150"
-                  type="number"
-                  value={quoteForm.estimated_price}
-                  onChange={(e) => setQuoteForm((f) => ({ ...f, estimated_price: e.target.value }))}
-                />
-              </label>
-              <label className="field">
-                <span>{locale === "en-CA" ? "Proposed date (optional)" : "Date proposee (optionnel)"}</span>
-                <input
-                  type="date"
-                  value={quoteForm.proposed_date}
-                  onChange={(e) => setQuoteForm((f) => ({ ...f, proposed_date: e.target.value }))}
-                />
-              </label>
-              <label className="field">
-                <span>{locale === "en-CA" ? "Estimated delay (days, optional)" : "Delai estime (jours, optionnel)"}</span>
-                <input
-                  inputMode="numeric"
-                  min="0"
-                  placeholder="2"
-                  type="number"
-                  value={quoteForm.delay_days}
-                  onChange={(e) => setQuoteForm((f) => ({ ...f, delay_days: e.target.value }))}
-                />
-              </label>
-            </div>
-
-            {quoteError && <p className="notice notice-error">{quoteError}</p>}
-
-            <div className="button-group">
-              <button className="ghost-button" onClick={closeQuoteForm} type="button">
-                {locale === "en-CA" ? "Cancel" : "Annuler"}
-              </button>
-              <button className="primary-button" disabled={quoteSubmitting} type="submit">
-                {quoteSubmitting
-                  ? (locale === "en-CA" ? "Sending..." : "Envoi en cours...")
-                  : (locale === "en-CA" ? "Send offer" : "Envoyer l'offre")}
-              </button>
-            </div>
-          </form>
-        </section>
-      )}
 
       {requests.length === 0 && !loading && (
         <section className="panel panel-clean">

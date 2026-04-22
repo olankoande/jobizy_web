@@ -293,6 +293,16 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.875rem;
 }
 
+/* Sur desktop, le wrapper mobile-menu est invisible dans le layout flex */
+.mobile-menu {
+  display: contents;
+}
+
+@keyframes mobileMenuIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 .topnav {
   justify-content: center;
 }
@@ -2542,34 +2552,136 @@ textarea:focus {
     padding-top: 0.75rem;
   }
 
+  /* ── Topbar: reste sticky, se referme proprement ── */
   .topbar {
-    position: static;
-    align-items: flex-start;
+    position: sticky;
+    top: 0.5rem;
+    align-items: center;
+    gap: 0;
+    padding: 0.65rem 1rem;
   }
 
-  .topnav {
-    display: none;
-    width: 100%;
-    justify-content: flex-start;
+  /* Brand prend tout l'espace disponible sur la première ligne */
+  .brand-button {
+    flex: 1;
   }
 
-  .topnav.topnav-open,
-  .topbar-actions.topbar-actions-open {
-    display: flex;
-  }
-
-  .topbar-actions {
-    display: none;
-    width: 100%;
-    justify-content: flex-start;
-  }
-
-  .public-actions {
-    width: 100%;
-  }
-
+  /* Bouton hamburger visible */
   .mobile-nav-toggle {
     display: inline-flex;
+    flex-shrink: 0;
+  }
+
+  /* ── Panneau menu mobile unifié ── */
+  .mobile-menu {
+    display: none;
+    width: 100%;
+    margin-top: 0.75rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid rgba(23, 50, 77, 0.1);
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .mobile-menu.mobile-menu-open {
+    display: flex;
+    animation: mobileMenuIn 200ms ease both;
+  }
+
+  /* ── Section navigation : grille 2 colonnes ── */
+  .mobile-menu .topnav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
+    width: 100%;
+    padding-bottom: 0.9rem;
+    justify-content: unset;
+    align-items: unset;
+    flex-wrap: unset;
+  }
+
+  /* Dernier lien en position impaire : s'étend sur 2 colonnes */
+  .mobile-menu .topnav button:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+
+  .mobile-menu .topnav button {
+    justify-content: flex-start;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    width: 100%;
+    padding: 0.6rem 0.85rem;
+    background: rgba(23, 50, 77, 0.04);
+    border: 1px solid rgba(23, 50, 77, 0.07);
+    gap: 0.5rem;
+    transform: none;
+  }
+
+  .mobile-menu .topnav button:hover {
+    background: rgba(23, 50, 77, 0.08);
+    border-color: rgba(23, 50, 77, 0.13);
+    transform: none;
+  }
+
+  /* ── Section actions : séparée par un divider ── */
+  .mobile-menu .topbar-actions {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding-top: 0.9rem;
+    border-top: 1px solid rgba(23, 50, 77, 0.1);
+    gap: 0.45rem;
+    align-items: stretch;
+    justify-content: flex-start;
+    flex-wrap: unset;
+  }
+
+  /* Public & workspace actions : colonne organisée */
+  .mobile-menu .public-actions,
+  .mobile-menu .workspace-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.4rem;
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: unset;
+  }
+
+  /* Sélecteur de langue : compact */
+  .mobile-menu .public-actions select,
+  .mobile-menu .workspace-actions select {
+    align-self: flex-start;
+    width: auto;
+    margin-bottom: 0.15rem;
+  }
+
+  /* Tous les boutons d'actions : pleine largeur, icône à gauche */
+  .mobile-menu .public-actions button,
+  .mobile-menu .workspace-actions button {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  /* Bouton CTA primaire : centré et mis en avant */
+  .mobile-menu .public-actions .primary-button,
+  .mobile-menu .workspace-actions .primary-button {
+    justify-content: center;
+    margin-top: 0.2rem;
+  }
+
+  /* Bouton déconnexion : aspect discret, distinct du CTA */
+  .mobile-menu .workspace-actions .primary-button:last-child {
+    background: transparent;
+    border: 1px solid rgba(23, 50, 77, 0.15);
+    color: var(--text);
+    box-shadow: none;
+    justify-content: flex-start;
+    margin-top: 0.1rem;
+  }
+
+  .mobile-menu .workspace-actions .primary-button:last-child:hover {
+    background: rgba(23, 50, 77, 0.05);
+    box-shadow: none;
   }
 }
 
@@ -2647,8 +2759,7 @@ textarea:focus {
   }
 
   .primary-button,
-  .ghost-button,
-  .topnav button {
+  .ghost-button {
     width: 100%;
     justify-content: center;
   }

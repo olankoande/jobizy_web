@@ -187,16 +187,17 @@ export function AppShell() {
           {t(locale, "menu")}
         </button>
 
-        <nav className={mobileMenuOpen ? "topnav topnav-open" : "topnav"} role="navigation">
+        <div className={mobileMenuOpen ? "mobile-menu mobile-menu-open" : "mobile-menu"}>
+        <nav className="topnav" role="navigation">
           {(isPublic ? publicLinks : publicLinks.slice(0, 3)).map((item) => (
-            <button key={item.href} onClick={() => navigate(item.href)} type="button">
+            <button key={item.href} onClick={() => { navigate(item.href); setMobileMenuOpen(false); }} type="button">
               <AppIcon className="button-icon" name={item.icon} />
               {item.label}
             </button>
           ))}
         </nav>
 
-        <div className={mobileMenuOpen ? "topbar-actions topbar-actions-open" : "topbar-actions"}>
+        <div className="topbar-actions">
           {isPublic ? (
             <div className="public-actions">
               <select aria-label={t(locale, "language")} onChange={(event) => switchLocale(event.target.value as Locale)} value={locale}>
@@ -250,6 +251,7 @@ export function AppShell() {
               </button>
             </div>
           )}
+        </div>
         </div>
       </header>
 

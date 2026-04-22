@@ -523,8 +523,6 @@ export function ClientRequestsPage() {
                 const reqCategoryIcon = reqCategory?.icon ?? null;
                 const isSelected = selectedReqId === req.id;
                 const offersCount = reqAny.offers_count ?? 0;
-                const activeQuotes = isSelected ? quotes.filter((q) => q.status !== "rejected" && q.status !== "withdrawn") : [];
-                const isAwarded = req.status === "awarded";
 
                 const newOffers = reqAny.new_offers_count ?? 0;
                 const unreadMessages = reqAny.unread_messages_client_count ?? 0;

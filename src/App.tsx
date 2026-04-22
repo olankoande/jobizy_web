@@ -50,6 +50,29 @@ function RouteFallback() {
   );
 }
 
+function NotFound() {
+  const parts = window.location.pathname.split("/").filter(Boolean);
+  const locale = parts[0] === "en-CA" ? "en-CA" : "fr-CA";
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "60vh", gap: "1rem", textAlign: "center", padding: "2rem" }}>
+      <strong style={{ fontSize: "1.1rem" }}>
+        {locale === "en-CA" ? "Page not found" : "Page introuvable"}
+      </strong>
+      <p style={{ color: "#6b7280", fontSize: "0.9rem", maxWidth: "360px" }}>
+        {locale === "en-CA"
+          ? "This link may be expired or incorrect. You can return to the home page."
+          : "Ce lien est peut-être expiré ou incorrect. Vous pouvez retourner à l'accueil."}
+      </p>
+      <a
+        href={`/${locale}`}
+        style={{ background: "var(--accent, #2f8cab)", color: "#fff", borderRadius: "0.5rem", padding: "0.6rem 1.2rem", textDecoration: "none", fontSize: "0.9rem" }}
+      >
+        {locale === "en-CA" ? "Back to home" : "Retour à l'accueil"}
+      </a>
+    </div>
+  );
+}
+
 function normalizeLocale(value?: string): Locale {
   return value === "en-CA" ? "en-CA" : "fr-CA";
 }
@@ -134,7 +157,13 @@ export default function App() {
               <Route path="pro/reputation" element={<ProviderReputationPage />} />
               <Route path="pro/parametres" element={<ProviderSettingsPage />} />
             </Route>
+
+            {/* Catch-all for unmatched routes within a locale */}
+            <Route path="*" element={<NotFound />} />
           </Route>
+
+          {/* Catch-all for completely unknown paths */}
+          <Route path="*" element={<Navigate replace to="/fr-CA" />} />
         </Routes>
       </Suspense>
     </BrowserRouter>

@@ -42,8 +42,11 @@ export class ApiResponseError extends Error {
   }
 }
 
-const DEFAULT_API_BASE_URL =
-  (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim() || "http://localhost:3001/api/v1";
+const _configuredApiUrl = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim();
+if (!_configuredApiUrl && import.meta.env.PROD) {
+  console.error("[Jobizy] VITE_API_BASE_URL is not set. All API calls will fail. Set this build arg in Coolify.");
+}
+const DEFAULT_API_BASE_URL = _configuredApiUrl || "http://localhost:3001/api/v1";
 
 type RequestOptions = {
   method?: "GET" | "POST" | "PATCH" | "DELETE";

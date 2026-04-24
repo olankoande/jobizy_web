@@ -175,11 +175,16 @@ const fallbackAppContext: AppContextValue = {
   refresh: async () => undefined,
 };
 
+const CURRENT_API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim() || "http://localhost:3001/api/v1";
+
 function readSession() {
   const raw = window.localStorage.getItem(SESSION_KEY);
   if (!raw) return null;
   try {
-    return JSON.parse(raw) as Session;
+    const session = JSON.parse(raw) as Session;
+    // Toujours utiliser l'URL du build courant — jamais une URL périmée (localhost, ancienne prod)
+    session.apiBaseUrl = CURRENT_API_BASE_URL;
+    return session;
   } catch {
     return null;
   }
@@ -302,7 +307,11 @@ export function AppProvider({ locale, children }: ProviderProps) {
 
       setCollections(nextState);
     } catch (refreshError) {
-      setError(refreshError instanceof Error ? refreshError.message : t(locale, "dataLoadingImpossible"));
+      const msg = refreshError instanceof Error ? refreshError.message : "";
+      const isNetworkError = /networkerror|failed to fetch|load failed/i.test(msg);
+      setError(isNetworkError
+        ? (locale === "en-CA" ? "Unable to reach the server. Check your connection." : "Impossible de contacter le serveur. Vérifiez votre connexion.")
+        : (msg || t(locale, "dataLoadingImpossible")));
     } finally {
       setLoading(false);
     }

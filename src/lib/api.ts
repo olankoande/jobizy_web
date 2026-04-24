@@ -57,9 +57,13 @@ type RequestOptions = {
 };
 
 function buildUrl(path: string, query?: RequestOptions["query"], apiBaseUrl = DEFAULT_API_BASE_URL) {
-  const baseUrl = apiBaseUrl.endsWith("/") ? apiBaseUrl : `${apiBaseUrl}/`;
-  const cleanPath = path.replace(/^\/+/, "");
-  const url = new URL(cleanPath, baseUrl);
+  const base = apiBaseUrl.endsWith("/") ? apiBaseUrl.slice(0, -1) : apiBaseUrl;
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+
+  // Résolution absolue : si apiBaseUrl est relatif (/api/v1), on préfixe l'origine du navigateur
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const absoluteBase = base.startsWith("http") ? base : `${origin}${base}`;
+  const url = new URL(`${absoluteBase}${cleanPath}`);
 
   if (query) {
     for (const [key, value] of Object.entries(query)) {

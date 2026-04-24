@@ -1,22 +1,29 @@
 import { useEffect, useState } from "react";
 
-const DISMISSED_KEY = "jobizy_install_dismissed";
-
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
+function isMobile() {
+  return /android|iphone|ipad|ipod|mobile|tablet/i.test(navigator.userAgent);
+}
+
+function isInstalled() {
+  return (
+    window.matchMedia("(display-mode: standalone)").matches ||
+    !!(navigator as { standalone?: boolean }).standalone
+  );
+}
+
 export function InstallPrompt({ locale }: { locale: string }) {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
+  const [showIosHint, setShowIosHint] = useState(false);
   const fr = locale !== "en-CA";
 
   useEffect(() => {
-    // Don't show if already dismissed or already installed
-    if (localStorage.getItem(DISMISSED_KEY)) return;
-    if (window.matchMedia("(display-mode: standalone)").matches) return;
-    if ((navigator as any).standalone) return; // iOS Safari installed
+    if (!isMobile() || isInstalled()) return;
 
     const handler = (e: Event) => {
       e.preventDefault();
@@ -28,37 +35,26 @@ export function InstallPrompt({ locale }: { locale: string }) {
     return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
 
-  // iOS Safari: no beforeinstallprompt — show a manual hint if on iOS and not standalone
-  const [showIosHint, setShowIosHint] = useState(false);
+  // iOS Safari: pas de beforeinstallprompt — afficher le hint manuel
   useEffect(() => {
-    if (localStorage.getItem(DISMISSED_KEY)) return;
+    if (isInstalled()) return;
     const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    const isInStandalone = (navigator as any).standalone;
-    if (isIos && !isInStandalone) {
-      setShowIosHint(true);
-    }
+    if (isIos) setShowIosHint(true);
   }, []);
-
-  function dismiss() {
-    localStorage.setItem(DISMISSED_KEY, "1");
-    setVisible(false);
-    setShowIosHint(false);
-  }
 
   async function handleInstall() {
     if (!deferredPrompt) return;
     await deferredPrompt.prompt();
     const choice = await deferredPrompt.userChoice;
     if (choice.outcome === "accepted") {
-      localStorage.setItem(DISMISSED_KEY, "1");
+      setVisible(false);
     }
-    setVisible(false);
     setDeferredPrompt(null);
   }
 
   const bannerStyle: React.CSSProperties = {
     position: "fixed",
-    bottom: "calc(env(safe-area-inset-bottom, 0px) + 72px)", // above mobile nav
+    bottom: "calc(env(safe-area-inset-bottom, 0px) + 72px)",
     left: "50%",
     transform: "translateX(-50%)",
     width: "calc(100% - 2rem)",
@@ -96,7 +92,7 @@ export function InstallPrompt({ locale }: { locale: string }) {
         </button>
         <button
           aria-label={fr ? "Fermer" : "Close"}
-          onClick={dismiss}
+          onClick={() => setVisible(false)}
           type="button"
           style={{ background: "none", border: "none", color: "rgba(255,255,255,0.6)", fontSize: "1.2rem", cursor: "pointer", flexShrink: 0, padding: "0 2px" }}
         >
@@ -116,13 +112,13 @@ export function InstallPrompt({ locale }: { locale: string }) {
           </strong>
           <span style={{ color: "rgba(255,255,255,0.75)", fontSize: "0.78rem" }}>
             {fr
-              ? "Appuyez sur  puis \"Sur l'écran d'accueil\""
-              : "Tap  then \"Add to Home Screen\""}
+              ? "Appuyez sur 📤 puis \"Sur l'écran d'accueil\""
+              : "Tap 📤 then \"Add to Home Screen\""}
           </span>
         </div>
         <button
           aria-label={fr ? "Fermer" : "Close"}
-          onClick={dismiss}
+          onClick={() => setShowIosHint(false)}
           type="button"
           style={{ background: "none", border: "none", color: "rgba(255,255,255,0.6)", fontSize: "1.2rem", cursor: "pointer", flexShrink: 0, padding: "0 2px" }}
         >

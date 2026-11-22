@@ -154,22 +154,22 @@ export function ProviderOnboarding({ locale, providerProfile, hasServices, hasZo
               width: 22, height: 22, borderRadius: "50%", flexShrink: 0,
               display: "inline-flex", alignItems: "center", justifyContent: "center",
               background: step.done ? "#16a34a" : "var(--border)",
-              color: step.done ? "#fff" : "var(--text-muted)",
+              color: step.done ? "#fff" : "var(--muted)",
               fontSize: "0.7rem", fontWeight: 700,
             }}>
               {step.done ? <AppIcon name="check" size={12} /> : null}
             </span>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <strong style={{ fontSize: "0.875rem", display: "block", color: step.done ? "var(--text-muted)" : "var(--surface-ink)", textDecoration: step.done ? "line-through" : "none" }}>
+              <strong style={{ fontSize: "0.875rem", display: "block", color: step.done ? "var(--muted)" : "var(--surface-ink)", textDecoration: step.done ? "line-through" : "none" }}>
                 {fr ? step.labelFr : step.labelEn}
               </strong>
               {!step.done && (
-                <span style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
+                <span style={{ fontSize: "0.78rem", color: "var(--muted)" }}>
                   {fr ? step.hintFr : step.hintEn}
                 </span>
               )}
             </div>
-            {!step.done && <span style={{ color: "var(--text-muted)", fontSize: "0.8rem", flexShrink: 0 }}>›</span>}
+            {!step.done && <span style={{ color: "var(--muted)", fontSize: "0.8rem", flexShrink: 0 }}>›</span>}
           </button>
         ))}
       </div>

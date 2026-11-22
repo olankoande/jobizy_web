@@ -164,3 +164,34 @@ export function ActionAssistant({
     </article>
   );
 }
+
+const STATUS_LABELS: Record<string, { fr: string; en: string; tone: "brand" | "info" | "success" | "muted" | "danger" }> = {
+  draft: { fr: "Brouillon", en: "Draft", tone: "muted" },
+  pending: { fr: "En attente", en: "Pending", tone: "brand" },
+  published: { fr: "Publiée", en: "Published", tone: "info" },
+  in_discussion: { fr: "En discussion", en: "In discussion", tone: "brand" },
+  awarded: { fr: "Attribuée", en: "Awarded", tone: "success" },
+  accepted: { fr: "Acceptée", en: "Accepted", tone: "success" },
+  rejected: { fr: "Refusée", en: "Declined", tone: "danger" },
+  withdrawn: { fr: "Retirée", en: "Withdrawn", tone: "muted" },
+  scheduled: { fr: "Planifiée", en: "Scheduled", tone: "info" },
+  in_progress: { fr: "En cours", en: "In progress", tone: "brand" },
+  completed: { fr: "Terminée", en: "Completed", tone: "success" },
+  closed: { fr: "Clôturée", en: "Closed", tone: "muted" },
+  cancelled: { fr: "Annulée", en: "Cancelled", tone: "danger" },
+  expired: { fr: "Expirée", en: "Expired", tone: "muted" },
+  active: { fr: "Actif", en: "Active", tone: "success" },
+};
+
+export function statusLabel(locale: string, status?: string | null) {
+  if (!status) return "-";
+  const entry = STATUS_LABELS[status];
+  if (entry) return locale === "en-CA" ? entry.en : entry.fr;
+  const pretty = status.replace(/_/g, " ");
+  return pretty.charAt(0).toUpperCase() + pretty.slice(1);
+}
+
+export function StatusChip({ locale, status }: { locale: string; status?: string | null }) {
+  const tone = (status && STATUS_LABELS[status]?.tone) || "muted";
+  return <span className={`status-pill status-pill-${tone}`}>{statusLabel(locale, status)}</span>;
+}

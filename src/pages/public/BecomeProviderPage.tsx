@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useApp } from "../../app/AppProvider";
+import { AppIcon } from "../../app/AppIcon";
 import { SectionIntro } from "../shared/Shared";
 
 function money(value: number, currency: string) {
@@ -38,40 +39,50 @@ export function BecomeProviderPage() {
 
   return (
     <section className="stack stack-xl">
-      <section className="hero hero-public">
-        <div className="hero-copy hero-copy-public">
-          <p className="eyebrow">{locale === "en-CA" ? "For providers" : "Pour les prestataires"}</p>
-          <h1>{locale === "en-CA" ? "Grow from local visibility to repeat business." : "Passez de la visibilite locale a un vrai flux d'affaires."}</h1>
-          <p className="hero-subtitle">
+      <section className="provider-hero">
+        <div className="provider-hero-copy">
+          <h1>
+            {locale === "en-CA" ? <>Grow your business and find <em>more clients</em></> : <>Développez votre activité et trouvez <em>plus de clients</em></>}
+          </h1>
+          <p className="home-hero-sub">
             {locale === "en-CA"
-              ? "Jobizy helps service businesses get clearer local requests, reply faster and look more trustworthy before the first call."
-              : "Jobizy aide les entreprises de services a recevoir des demandes locales plus claires, a repondre vite et a paraitre plus credibles avant meme le premier appel."}
+              ? "Receive qualified requests, offer your services and grow your income, simply."
+              : "Recevez des demandes qualifiées, proposez vos services et augmentez vos revenus, en toute simplicité."}
           </p>
-          <div className="cta-row">
+          <ul className="check-list">
+            {benefitBlocks.map((item) => (
+              <li key={item.title}>
+                <AppIcon className="check-list-icon" name="check" />
+                <span><strong>{item.title}</strong> <small>{item.body}</small></span>
+              </li>
+            ))}
+          </ul>
+          <div className="home-hero-cta">
             <button className="primary-button" onClick={() => navigate(providerCtaHref)} type="button">
-              {locale === "en-CA" ? "Create my provider account" : "Creer mon compte prestataire"}
+              {locale === "en-CA" ? "Activate my provider profile" : "Activer mon profil prestataire"}
             </button>
-            <button className="ghost-button" onClick={() => navigate(session ? `/${locale}/pro/abonnement` : providerCtaHref)} type="button">
+            <button className="outline-button" onClick={() => navigate(session ? `/${locale}/pro/abonnement` : `/${locale}/tarifs`)} type="button">
               {locale === "en-CA" ? "See plans" : "Voir les plans"}
             </button>
           </div>
-          <div className="trust-inline">
-            <span className="status-chip status-chip-success">{locale === "en-CA" ? "City-based demand" : "Demandes par ville"}</span>
-            <span className="status-chip">{locale === "en-CA" ? "Public reviews" : "Avis publics"}</span>
-            <span className="status-chip">{locale === "en-CA" ? "Upgrade only when ROI is visible" : "Upgrade quand le ROI devient visible"}</span>
-          </div>
         </div>
-
-        <div className="hero-visual-stack">
-          <article className="tabular-card tabular-card-soft provider-hero-panel">
-            <p className="eyebrow">{locale === "en-CA" ? "Why it feels professional" : "Pourquoi ca semble professionnel"}</p>
-            {benefitBlocks.map((item) => (
-              <div className="tabular-row" key={item.title}>
-                <strong>{item.title}</strong>
-                <span>{item.body}</span>
-              </div>
-            ))}
-          </article>
+        <div aria-hidden="true" className="home-hero-visual provider-hero-visual">
+          <span className="hv-shape hv-shape-blue" />
+          <span className="hv-shape hv-shape-orange" />
+          <div className="hv-card hv-card-main">
+            <span className="hv-avatar">+1</span>
+            <div>
+              <strong>{locale === "en-CA" ? "New request" : "Nouvelle demande"}</strong>
+              <small>{locale === "en-CA" ? "Near you" : "Près de chez vous"}</small>
+            </div>
+          </div>
+          <div className="hv-card hv-card-offer">
+            <span className="hv-check"><AppIcon name="check" /></span>
+            <div>
+              <strong>{locale === "en-CA" ? "Mission won" : "Mission remportée"}</strong>
+              <small>{locale === "en-CA" ? "Your reply was accepted" : "Votre réponse est acceptée"}</small>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -94,8 +105,8 @@ export function BecomeProviderPage() {
       <section className="panel panel-clean">
         <SectionIntro
           eyebrow={locale === "en-CA" ? "Plans" : "Plans"}
-          title={locale === "en-CA" ? "Make pricing easy to compare and easy to justify" : "Rendre la tarification facile a comparer et a justifier"}
-          body={locale === "en-CA" ? "Keep the structure simple: start, grow, dominate local visibility." : "Garder une structure simple : commencer, accelerer, dominer la visibilite locale."}
+          title={locale === "en-CA" ? "Simple plans that grow with you" : "Des plans simples qui évoluent avec vous"}
+          body={locale === "en-CA" ? "Start for free, then upgrade when the volume justifies it." : "Commencez gratuitement, puis évoluez quand le volume le justifie."}
         />
         <div className="plan-list">
           {plans.slice(0, 3).map((plan, index) => (

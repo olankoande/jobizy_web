@@ -98,9 +98,10 @@ export const CATEGORY_ICON_KEYS = Object.keys(ICON_PATHS);
 export function CategoryIcon({ icon, size = 24, className }: CategoryIconProps) {
   if (!icon) return null;
 
-  const path = ICON_PATHS[icon];
+  // Clé inconnue ressemblant à un nom d'icône (ex. "monitor") : icône générique plutôt que du texte brut
+  const path = ICON_PATHS[icon] ?? (/^[a-z0-9_-]+$/i.test(icon) ? ICON_PATHS.toolbox : undefined);
 
-  // Unknown key — render as-is (emoji fallback)
+  // Autre valeur (emoji) : affichée telle quelle
   if (!path) {
     return <span style={{ fontSize: `${size * 0.07}rem`, lineHeight: 1 }}>{icon}</span>;
   }

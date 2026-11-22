@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { getConversationMessages, getConversations, markMessageRead, sendConversationMessage } from "../../lib/api";
 import { useApp } from "../../app/AppProvider";
 import { Avatar } from "../../components/Avatar";
-import { EmptyState } from "./Shared";
+import { EmptyState, statusLabel } from "./Shared";
 
 function formatDate(value?: string | null) {
   if (!value) return "-";
@@ -109,10 +109,10 @@ export function MessagesPage() {
         <div className="messages-header">
           <div>
             <p className="eyebrow">{locale === "en-CA" ? "Context" : "Contexte"}</p>
-            <strong>{selectedConversation?.request_title || (locale === "en-CA" ? "Select a conversation" : "Selectionnez une conversation")}</strong>
-            <p>{selectedConversation ? (locale === "en-CA" ? "Centralized messages tied to the request or mission." : "Messages centralises relies a la demande ou a la mission.") : ""}</p>
+            <strong>{selectedConversation?.request_title || (locale === "en-CA" ? "Select a conversation" : "Sélectionnez une conversation")}</strong>
+            <p>{selectedConversation ? (locale === "en-CA" ? "Centralized messages tied to the request or mission." : "Messages liés à la demande ou à la mission.") : ""}</p>
           </div>
-          {selectedConversation ? <span className="status-chip status-chip-success">{selectedConversation.status}</span> : null}
+          {selectedConversation ? <span className="status-chip status-chip-success">{statusLabel(locale, selectedConversation.status)}</span> : null}
         </div>
 
         <div className="message-stream" ref={streamRef}>
@@ -141,10 +141,10 @@ export function MessagesPage() {
           >
             <label className="field field-wide">
               <span>{locale === "en-CA" ? "New message" : "Nouveau message"}</span>
-              <textarea onChange={(event) => setDraft(event.target.value)} placeholder={locale === "en-CA" ? "Share context, timing or a quick follow-up..." : "Ajoutez un contexte, un delai ou une relance rapide..."} value={draft} />
+              <textarea onChange={(event) => setDraft(event.target.value)} placeholder={locale === "en-CA" ? "Share context, timing or a quick follow-up..." : "Écrivez votre message…"} value={draft} />
             </label>
             <button className="primary-button" type="submit">
-              {locale === "en-CA" ? "Send message" : "Envoyer le message"}
+              {locale === "en-CA" ? "Send message" : "Envoyer"}
             </button>
           </form>
         ) : null}

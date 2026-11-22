@@ -27,19 +27,19 @@ export function AppShell() {
   const unreadCount = notifications.filter((item) => !item.is_read).length;
 
   const clientLinks: ShellLink[] = [
-    { label: t(locale, "dashboard"), href: `/${locale}/app`, icon: "home" },
-    { label: t(locale, "requests"), href: `/${locale}/app/demandes`, icon: "requests" },
+    { label: locale === "en-CA" ? "Dashboard" : "Tableau de bord", href: `/${locale}/app`, icon: "home" },
+    { label: locale === "en-CA" ? "My requests" : "Mes demandes", href: `/${locale}/app/demandes`, icon: "requests" },
     { label: t(locale, "messages"), href: `/${locale}/app/messages`, icon: "messages" },
-    { label: locale === "en-CA" ? "Missions" : "Missions", href: `/${locale}/app/missions`, icon: "mission" },
+    { label: "Missions", href: `/${locale}/app/missions`, icon: "mission" },
     { label: locale === "en-CA" ? "Reviews" : "Avis", href: `/${locale}/app/avis`, icon: "reputation" },
     { label: t(locale, "profile"), href: `/${locale}/app/profil`, icon: "profile" },
-    { label: locale === "en-CA" ? "Settings" : "Parametres", href: `/${locale}/app/parametres`, icon: "notifications" },
+    { label: locale === "en-CA" ? "Settings" : "Paramètres", href: `/${locale}/app/parametres`, icon: "notifications" },
   ];
 
   const providerLinks: ShellLink[] = [
-    { label: t(locale, "dashboard"), href: `/${locale}/pro`, icon: "home" },
-    { label: locale === "en-CA" ? "Opportunities" : "Opportunites", href: `/${locale}/pro/demandes`, icon: "spark" },
-    { label: locale === "en-CA" ? "My quotes" : "Mes offres", href: `/${locale}/pro/reponses`, icon: "requests" },
+    { label: locale === "en-CA" ? "Dashboard" : "Tableau de bord", href: `/${locale}/pro`, icon: "home" },
+    { label: locale === "en-CA" ? "Available requests" : "Demandes disponibles", href: `/${locale}/pro/demandes`, icon: "spark" },
+    { label: locale === "en-CA" ? "My replies" : "Mes réponses", href: `/${locale}/pro/reponses`, icon: "requests" },
     { label: locale === "en-CA" ? "My missions" : "Mes missions", href: `/${locale}/pro/missions`, icon: "mission" },
     { label: t(locale, "messages"), href: `/${locale}/pro/messages`, icon: "messages" },
     { label: locale === "en-CA" ? "Analytics" : "Statistiques", href: `/${locale}/pro/statistiques`, icon: "chart" },
@@ -49,7 +49,7 @@ export function AppShell() {
     { label: locale === "en-CA" ? "Availability" : "Disponibilités", href: `/${locale}/pro/disponibilites`, icon: "mission" },
     { label: locale === "en-CA" ? "Reviews" : "Avis", href: `/${locale}/pro/reputation`, icon: "reputation" },
     { label: t(locale, "profile"), href: `/${locale}/pro/profil`, icon: "profile" },
-    { label: locale === "en-CA" ? "Settings" : "Parametres", href: `/${locale}/pro/parametres`, icon: "notifications" },
+    { label: locale === "en-CA" ? "Settings" : "Paramètres", href: `/${locale}/pro/parametres`, icon: "notifications" },
   ];
 
   const publicLinks = [
@@ -286,7 +286,7 @@ export function AppShell() {
             {isProviderRoute ? (
               <button className="primary-button" onClick={() => navigate(`/${locale}/pro/demandes`)} type="button">
                 <AppIcon className="button-icon" name="spark" />
-                {locale === "en-CA" ? "Opportunities" : "Opportunités"}
+                {locale === "en-CA" ? "Available requests" : "Opportunités"}
               </button>
             ) : (
               <button className="primary-button" onClick={() => navigate(`/${locale}/app/demandes`)} type="button">

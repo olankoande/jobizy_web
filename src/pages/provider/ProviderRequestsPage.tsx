@@ -4,7 +4,7 @@ import { useApp } from "../../app/AppProvider";
 import { CategoryIcon } from "../../app/CategoryIcon";
 import { getMatchingRequests } from "../../lib/api";
 import type { MatchingRequest } from "../../types";
-import { EmptyState, SectionIntro, StatCard } from "../shared/Shared";
+import { EmptyState, StatCard } from "../shared/Shared";
 import { Modal } from "../../components/Modal";
 
 function formatDate(value?: string | null) {
@@ -130,33 +130,23 @@ export function ProviderRequestsPage() {
   return (
     <section className="stack stack-xl">
 
-      <section className="panel panel-clean">
-        <SectionIntro
-          eyebrow={locale === "en-CA" ? "Matching opportunities" : "Opportunites correspondantes"}
-          title={locale === "en-CA" ? "Opportunities matching your profile" : "Opportunites qui correspondent a votre profil"}
-          body={
-            locale === "en-CA"
-              ? "These requests match the services you offer, your coverage zones and your availability."
-              : "Ces demandes correspondent aux services que vous proposez, vos zones d'intervention et vos disponibilites."
-          }
-          aside={
-            <div className="button-group">
-              <button className="ghost-button" onClick={() => navigate(`/${locale}/pro/services`)} type="button">
-                {locale === "en-CA" ? "My services" : "Mes services"}
-              </button>
-              <button className="primary-button" onClick={() => navigate(`/${locale}/pro/abonnement`)} type="button">
-                {locale === "en-CA" ? "Upgrade plan" : "Voir les plans"}
-              </button>
-            </div>
-          }
-        />
-        <div className="hero-panel">
-          <StatCard label={locale === "en-CA" ? "Open opportunities" : "Opportunites ouvertes"} tone="action" value={String(openCount)} />
-          <StatCard label={locale === "en-CA" ? "Already quoted" : "Deja repondues"} tone="info" value={String(answeredCount)} />
-          <StatCard label={locale === "en-CA" ? "Total matching" : "Total correspondant"} tone="trust" value={String(requests.length)} />
-          <StatCard label={locale === "en-CA" ? "Current plan" : "Plan actuel"} tone="support" value={currentPlan} />
+      <header className="dash-header">
+        <div>
+          <h1>{locale === "en-CA" ? "Available requests" : "Demandes disponibles"}</h1>
+          <p>{locale === "en-CA"
+            ? "Requests matching your services, coverage zones and availability."
+            : "Les demandes qui correspondent à vos services, vos zones et vos disponibilités."}</p>
         </div>
-      </section>
+        <button className="outline-button" onClick={() => navigate(`/${locale}/pro/abonnement`)} type="button">
+          {locale === "en-CA" ? "Plan" : "Plan"} {currentPlan}
+        </button>
+      </header>
+
+      <div className="kpi-row">
+        <StatCard icon="requests" label={locale === "en-CA" ? "Open opportunities" : "Opportunités ouvertes"} tone="action" value={String(openCount)} />
+        <StatCard icon="check" label={locale === "en-CA" ? "Already quoted" : "Déjà répondues"} tone="info" value={String(answeredCount)} />
+        <StatCard icon="spark" label={locale === "en-CA" ? "Total matching" : "Total correspondant"} tone="trust" value={String(requests.length)} />
+      </div>
 
       {error && <p className="notice notice-error">{error}</p>}
 
@@ -237,7 +227,7 @@ export function ProviderRequestsPage() {
                     <span className={req.already_quoted ? "status-chip" : "status-chip status-chip-success"}>
                       {req.already_quoted
                         ? (locale === "en-CA" ? "Quoted" : "Repondue")
-                        : req.urgency}
+                        : (({ high: locale === "en-CA" ? "Urgent" : "Urgent", low: "Flexible", standard: "Standard", normal: "Standard" } as Record<string, string>)[req.urgency] ?? req.urgency)}
                     </span>
                   </div>
 

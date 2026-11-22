@@ -4922,3 +4922,16 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); box-sha
 .wizard-heading p { margin-inline: auto; max-width: 56ch; }
 .wizard-step-pills { margin-top: 0.5rem; }
 .wizard-choice-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+
+/* Mobile : le tiroir de menu passe au-dessus de la barre du bas, et celle-ci se masque quand il est ouvert */
+@media (max-width: 960px) {
+  .sidebar { z-index: 60; height: 100vh; height: 100dvh; padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px)); }
+  .app-layout-menu-open .sidebar-scrim { z-index: 55; }
+  .app-layout-menu-open .mobile-bottom-nav { display: none; }
+  .mobile-bottom-nav { z-index: 40; }
+}
+
+/* Barre du bas : 5 entrées sur une seule ligne */
+.mobile-bottom-nav { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); }
+.mobile-bottom-link { min-width: 0; padding-inline: 0.15rem; font-size: 0.66rem; text-align: center; line-height: 1.15; }
+.mobile-bottom-link span:last-child { overflow-wrap: anywhere; }

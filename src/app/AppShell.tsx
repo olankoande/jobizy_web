@@ -190,18 +190,22 @@ export function AppShell() {
     return (
       <div className="site-shell site-shell-public">
         <header className="topbar topbar-public">
-          {brandButton}
           <button
             aria-expanded={mobileMenuOpen}
-            aria-label="Afficher la navigation"
+            aria-label={t(locale, "menu")}
             className="secondary-button mobile-nav-toggle"
             onClick={() => setMobileMenuOpen((current) => !current)}
             type="button"
           >
             <AppIcon className="button-icon" name="menu" />
-            {t(locale, "menu")}
           </button>
+          {brandButton}
+          {mobileMenuOpen ? <button aria-label="Fermer" className="public-scrim" onClick={() => setMobileMenuOpen(false)} type="button" /> : null}
           <div className={mobileMenuOpen ? "mobile-menu mobile-menu-open" : "mobile-menu"}>
+            <div className="drawer-head">
+              <span className="drawer-title"><img alt="" src="/logo.png" />{t(locale, "brand")}</span>
+              <button aria-label="Fermer" className="icon-button" onClick={() => setMobileMenuOpen(false)} type="button">✕</button>
+            </div>
             <nav className="topnav" role="navigation">
               {publicLinks.map((item) => (
                 <button key={item.href} onClick={() => { navigate(item.href); setMobileMenuOpen(false); }} type="button">
@@ -219,7 +223,6 @@ export function AppShell() {
             </div>
           </div>
         </header>
-
         <main className="page-wrap">
           {notices}
           <Outlet />
@@ -237,16 +240,16 @@ export function AppShell() {
         <div className="sidebar-brand">{brandButton}</div>
 
         <div className="sidebar-role">
-          <span className={`role-badge role-badge-${activeWorkspace}`}>
+          <span className={`role-badge role-badge-${activeWorkspace}`} title={activeWorkspace === "provider" ? (locale === "en-CA" ? "Provider space" : "Espace prestataire") : (locale === "en-CA" ? "Client space" : "Espace client")}>
             <AppIcon className="button-icon" name={activeActor.icon} />
-            {activeWorkspace === "provider" ? (locale === "en-CA" ? "Provider" : "Prestataire") : "Client"}
+            <span className="role-badge-label">{activeWorkspace === "provider" ? (locale === "en-CA" ? "Provider" : "Prestataire") : "Client"}</span>
           </span>
           {isProviderEnabled ? (
-            <button className="sidebar-switch" onClick={() => { navigate(switchWorkspaceHref); setMobileMenuOpen(false); }} type="button">
+            <button className="sidebar-switch" onClick={() => { navigate(switchWorkspaceHref); setMobileMenuOpen(false); }} title={switchWorkspaceLabel} aria-label={switchWorkspaceLabel} type="button">
               {switchWorkspaceLabel}
             </button>
           ) : (
-            <button className="sidebar-switch" onClick={() => navigate(`/${locale}/pro/activation`)} type="button">
+            <button className="sidebar-switch" onClick={() => navigate(`/${locale}/pro/activation`)} title={t(locale, "becomeProvider")} aria-label={t(locale, "becomeProvider")} type="button">
               {t(locale, "becomeProvider")}
             </button>
           )}
@@ -262,10 +265,12 @@ export function AppShell() {
                 className={({ isActive }) => (isActive ? "sidebar-link sidebar-link-active" : "sidebar-link")}
                 end={item.href === `/${locale}/app` || item.href === `/${locale}/pro`}
                 onClick={() => setMobileMenuOpen(false)}
+                aria-label={badge > 0 ? `${item.label} (${badge})` : item.label}
+                title={item.label}
                 to={item.href}
               >
                 <AppIcon className="button-icon" name={item.icon} />
-                <span>{item.label}</span>
+                <span className="sidebar-link-label">{item.label}</span>
                 {badge > 0 ? <span className="sidebar-badge">{badge}</span> : null}
               </NavLink>
             );
@@ -273,14 +278,14 @@ export function AppShell() {
         </nav>
 
         <div className="sidebar-user">
-          <button className="sidebar-user-main" onClick={() => navigate(currentProfileHref)} type="button">
+          <button className="sidebar-user-main" onClick={() => navigate(currentProfileHref)} title={currentProfileLabel} aria-label={currentProfileLabel} type="button">
             <Avatar name={profileDisplayName} url={session.user.avatar_url} size={36} />
             <span>
               <strong>{currentProfileLabel}</strong>
               <small>{session.user.email}</small>
             </span>
           </button>
-          <button className="sidebar-logout" onClick={logout} type="button">
+          <button className="sidebar-logout" onClick={logout} title={t(locale, "logout")} aria-label={t(locale, "logout")} type="button">
             <AppIcon className="button-icon" name="logout" />
             {t(locale, "logout")}
           </button>

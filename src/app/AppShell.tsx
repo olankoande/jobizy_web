@@ -67,6 +67,7 @@ export function AppShell() {
             `/${locale}/pro/demandes`,
             `/${locale}/pro/reponses`,
             `/${locale}/pro/messages`,
+            `/${locale}/pro/profil`,
           ].includes(item.href),
         )
       : clientLinks.filter((item) =>
@@ -75,6 +76,7 @@ export function AppShell() {
             `/${locale}/app/demandes`,
             `/${locale}/app/messages`,
             `/${locale}/app/missions`,
+            `/${locale}/app/profil`,
           ].includes(item.href),
         )
     : [];

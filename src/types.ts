@@ -250,6 +250,27 @@ export type Mission = {
   started_at?: string | null;
   completed_at?: string | null;
   cancelled_at?: string | null;
+  // Détails (renvoyés par GET /missions)
+  request_title?: string | null;
+  request_description?: string | null;
+  service_name?: string | null;
+  zone_name?: string | null;
+  client_first_name?: string | null;
+  client_last_name?: string | null;
+  display_name?: string | null;
+  business_name?: string | null;
+  desired_date?: string | null;
+  time_window_start?: string | null;
+  time_window_end?: string | null;
+  urgency?: string | null;
+  work_mode?: string | null;
+  budget_min_cents?: number | null;
+  budget_max_cents?: number | null;
+  quote_price_cents?: number | null;
+  quote_time_window?: string | null;
+  indicative_price_cents?: number | null;
+  unread_messages_provider_count?: number | null;
+  dispute_opened?: boolean | number | null;
 };
 
 export type NotificationItem = {

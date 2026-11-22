@@ -181,7 +181,28 @@ const STATUS_LABELS: Record<string, { fr: string; en: string; tone: "brand" | "i
   cancelled: { fr: "Annulée", en: "Cancelled", tone: "danger" },
   expired: { fr: "Expirée", en: "Expired", tone: "muted" },
   active: { fr: "Actif", en: "Active", tone: "success" },
+  // Statuts de mission renvoyés par le serveur (français)
+  confirmee: { fr: "Confirmée", en: "Confirmed", tone: "info" },
+  planifiee: { fr: "Planifiée", en: "Scheduled", tone: "info" },
+  en_cours: { fr: "En cours", en: "In progress", tone: "brand" },
+  terminee: { fr: "Terminée", en: "Completed", tone: "success" },
+  annulee: { fr: "Annulée", en: "Cancelled", tone: "danger" },
+  en_litige: { fr: "En litige", en: "Disputed", tone: "danger" },
 };
+
+const MISSION_ACTIVE = ["confirmee", "planifiee", "en_cours", "scheduled", "in_progress", "en_litige"];
+const MISSION_DONE = ["terminee", "completed"];
+const MISSION_CANCELLED = ["annulee", "cancelled"];
+
+export function isMissionActive(status?: string | null) {
+  return MISSION_ACTIVE.includes(status ?? "");
+}
+export function isMissionCompleted(status?: string | null) {
+  return MISSION_DONE.includes(status ?? "");
+}
+export function isMissionCancelled(status?: string | null) {
+  return MISSION_CANCELLED.includes(status ?? "");
+}
 
 export function statusLabel(locale: string, status?: string | null) {
   if (!status) return "-";

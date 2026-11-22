@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { getQuotes } from "../../lib/api";
 import { useApp } from "../../app/AppProvider";
 import { AppIcon } from "../../app/AppIcon";
-import { EmptyState, StatCard, StatusChip } from "../shared/Shared";
+import { EmptyState, isMissionActive, isMissionCompleted, StatCard, StatusChip } from "../shared/Shared";
 import type { Quote } from "../../types";
 
 function formatDate(value?: string | null) {
@@ -22,8 +22,8 @@ export function ClientDashboardPage() {
 
   const latestRequests = useMemo(() => requests.slice(0, 4), [requests]);
   const activeRequests = useMemo(() => requests.filter((request) => !["closed", "cancelled"].includes(request.status)), [requests]);
-  const activeMissions = useMemo(() => missions.filter((mission) => !["completed", "cancelled"].includes(mission.status)), [missions]);
-  const completedMissions = useMemo(() => missions.filter((mission) => mission.status === "completed"), [missions]);
+  const activeMissions = useMemo(() => missions.filter((mission) => isMissionActive(mission.status)), [missions]);
+  const completedMissions = useMemo(() => missions.filter((mission) => isMissionCompleted(mission.status)), [missions]);
   const unreadNotifications = useMemo(() => notifications.filter((item) => !item.is_read), [notifications]);
 
   useEffect(() => {

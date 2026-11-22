@@ -5064,3 +5064,23 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); box-sha
   .drawer-title { display: inline-flex; align-items: center; gap: 0.6rem; font-size: 1.25rem; font-weight: 800; letter-spacing: -0.03em; }
   .drawer-title img { width: 34px; height: 34px; border-radius: 9px; }
 }
+
+/* ---------- Cartes de mission détaillées ---------- */
+.mission-card { display: grid; gap: 0.85rem; padding: 1.1rem 1.2rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: #fff; }
+.mission-card-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 0.85rem; }
+.mission-card-title { min-width: 0; display: grid; gap: 0.1rem; }
+.mission-card-title strong { font-size: 1.05rem; overflow-wrap: anywhere; }
+.mission-card-title span { color: var(--muted); font-size: 0.88rem; }
+.mission-card-desc { margin: 0; color: var(--muted-strong); font-size: 0.92rem; line-height: 1.55; }
+.detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0.6rem 1.25rem; margin: 0; padding: 0.85rem 1rem; border-radius: var(--radius-sm); background: var(--surface-soft); }
+.detail-grid > div { min-width: 0; }
+.detail-grid dt { color: var(--muted); font-size: 0.74rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+.detail-grid dd { margin: 0.1rem 0 0; font-weight: 600; overflow-wrap: anywhere; }
+@media (max-width: 560px) { .mission-card-head { grid-template-columns: auto minmax(0, 1fr); } .mission-card-head .status-pill { grid-column: 1 / -1; justify-self: start; } }
+
+/* Tuiles de chiffres compactes (pages sans icône) */
+.hero-panel .metric-card { min-height: 0; align-content: start; padding: 0.9rem 1.1rem; }
+.hero-panel .metric-card strong { font-size: 1.6rem; line-height: 1.15; }
+@media (max-width: 560px) { .hero-panel { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; } .hero-panel .metric-card { padding: 0.75rem 0.85rem; } }
+@media (max-width: 560px) { .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 0.75rem; gap: 0.55rem 0.9rem; } .detail-grid dd { font-size: 0.92rem; } }
+.panel > h2 + .stack { margin-top: 0.9rem; }

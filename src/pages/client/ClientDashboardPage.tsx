@@ -61,7 +61,7 @@ export function ClientDashboardPage() {
       <section className="panel panel-clean">
         <SectionIntro
           eyebrow={locale === "en-CA" ? "Client dashboard" : "Tableau de bord client"}
-          title={locale === "en-CA" ? "Everything should revolve around your requests" : "Tout doit tourner autour de vos demandes"}
+          title={locale === "en-CA" ? "Your requests at a glance" : "Vos demandes en un coup d'œil"}
           body={locale === "en-CA" ? "Post quickly, track status clearly, compare quotes and organize the service with confidence." : "Publiez vite, suivez les statuts clairement, comparez les offres et organisez la prestation en confiance."}
           aside={
             <button className="primary-button" onClick={() => navigate(`/${locale}/app/demandes`)} type="button">
@@ -109,7 +109,7 @@ export function ClientDashboardPage() {
         <ToneCard className="tabular-card" tone="action">
           <p className="eyebrow">{locale === "en-CA" ? "Quick action" : "Action rapide"}</p>
           <strong>{locale === "en-CA" ? "Publish a new request without losing momentum" : "Publiez une nouvelle demande sans perdre l'elan"}</strong>
-          <p className="section-copy">{locale === "en-CA" ? "The request wizard is the main conversion path. Keep it one click away from the dashboard." : "Le wizard de demande est le chemin de conversion principal. Il doit rester a un clic du dashboard."}</p>
+          <p className="section-copy">{locale === "en-CA" ? "Describe your need in a few steps and receive offers from local providers." : "Décrivez votre besoin en quelques étapes et recevez des offres de prestataires locaux."}</p>
           <div className="cta-row">
             <button className="primary-button" onClick={() => navigate(`/${locale}/app/demandes`)} type="button">
               {locale === "en-CA" ? "Post a request" : "Publier une demande"}

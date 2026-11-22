@@ -21,7 +21,7 @@ export function ClientProfilePage() {
         <SectionIntro
           eyebrow={locale === "en-CA" ? "Client profile" : "Profil client"}
           title={locale === "en-CA" ? "Keep profile information visible and easy to update" : "Garder les informations du profil visibles et faciles a mettre a jour"}
-          body={locale === "en-CA" ? "The client area should connect identity, active requests and shortcuts to the places where information matters." : "L'espace client doit relier l'identite, les demandes actives et les raccourcis vers les zones ou ces informations comptent vraiment."}
+          body={locale === "en-CA" ? "Your personal information and your activity in one place." : "Vos informations personnelles et votre activité au même endroit."}
           aside={
             <div className="button-group">
               <button className="secondary-button" onClick={() => navigate(`/${locale}/app/missions`)} type="button">

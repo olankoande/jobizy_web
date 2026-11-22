@@ -39,8 +39,8 @@ export function HowItWorksPage() {
       <section className="panel panel-clean panel-hero-surface">
         <SectionIntro
           eyebrow={locale === "en-CA" ? "Journey" : "Parcours"}
-          title={locale === "en-CA" ? "Explain the product with fewer steps and stronger reassurance" : "Expliquer le produit avec moins d'etapes et plus de reassurance"}
-          body={locale === "en-CA" ? "Visitors should understand the local flow in seconds: define the need, compare confidently, move forward." : "Le visiteur doit comprendre le flux local en quelques secondes : definir le besoin, comparer en confiance, avancer."}
+          title={locale === "en-CA" ? "Jobizy in three simple steps" : "Jobizy en trois étapes simples"}
+          body={locale === "en-CA" ? "Define your need, compare offers with confidence, then move forward." : "Définissez votre besoin, comparez les offres en confiance, puis avancez."}
           aside={<button className="primary-button" onClick={() => navigate(requestCtaHref)} type="button">{locale === "en-CA" ? "Post a request" : "Publier une demande"}</button>}
         />
         <div className="steps-rail">
@@ -66,7 +66,7 @@ export function HowItWorksPage() {
         </article>
         <article className="tabular-card tabular-card-soft">
           <p className="eyebrow">{locale === "en-CA" ? "For providers" : "Pour les prestataires"}</p>
-          <strong>{locale === "en-CA" ? "Show the business value of joining the network" : "Montrer la valeur business du reseau"}</strong>
+          <strong>{locale === "en-CA" ? "Why join the Jobizy network" : "Pourquoi rejoindre le réseau Jobizy"}</strong>
           <ul className="feature-list">
             {providerBlocks.map((block) => <li key={block}>{block}</li>)}
           </ul>
@@ -76,7 +76,7 @@ export function HowItWorksPage() {
       <section className="panel panel-clean">
         <SectionIntro
           eyebrow="FAQ"
-          title={locale === "en-CA" ? "The questions a professional marketplace should answer upfront" : "Les questions auxquelles une marketplace serieuse doit repondre tout de suite"}
+          title={locale === "en-CA" ? "Questions frequently asked before getting started" : "Les questions fréquentes avant de commencer"}
         />
         <div className="faq-grid">
           {faqItems.map((item) => (

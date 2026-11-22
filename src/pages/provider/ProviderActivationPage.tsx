@@ -656,7 +656,7 @@ export function ProviderActivationPage() {
       <section className="panel panel-clean">
         <SectionIntro
           eyebrow={locale === "en-CA" ? "Immediate demand" : "Demandes immediates"}
-          title={locale === "en-CA" ? "Show live opportunities right after activation" : "Montrer des opportunites juste apres l'activation"}
+          title={locale === "en-CA" ? "See live opportunities right after activation" : "Découvrez des opportunités dès l'activation"}
           body={locale === "en-CA" ? "This is the gratification layer that helps the provider stay engaged and understand the value of the platform." : "C'est la couche de gratification qui aide le prestataire a rester engage et a comprendre la valeur de la plateforme."}
         />
         {visibleMatches.length === 0 ? (

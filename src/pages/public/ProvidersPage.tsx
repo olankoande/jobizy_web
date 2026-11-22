@@ -82,7 +82,7 @@ export function ProvidersPage() {
       <section className="panel panel-clean">
         <SectionIntro
           eyebrow={locale === "en-CA" ? "Trust signals" : "Signaux de confiance"}
-          title={locale === "en-CA" ? "What clients need to see before sending a request" : "Ce que les clients doivent voir avant d'envoyer une demande"}
+          title={locale === "en-CA" ? "What to check before sending a request" : "Ce qu'il faut vérifier avant d'envoyer une demande"}
         />
         <div className="trust-grid">
           {trustPillars.map((item) => (
@@ -108,7 +108,7 @@ export function ProvidersPage() {
           <p className="eyebrow">{locale === "en-CA" ? "For providers" : "Pour les prestataires"}</p>
           <strong>{locale === "en-CA" ? "Understand the visibility opportunity before signing up" : "Comprendre la visibilite gagnee avant l'inscription"}</strong>
           <ul className="feature-list">
-            <li>{locale === "en-CA" ? "A polished public profile improves first-click conversion." : "Un profil public soigne ameliore la conversion des premiers clics."}</li>
+            <li>{locale === "en-CA" ? "A complete public profile builds trust from the first click." : "Un profil public complet inspire confiance dès le premier clic."}</li>
             <li>{locale === "en-CA" ? "Fast replies and reviews reinforce long-term reputation." : "Des reponses rapides et des avis renforcent la reputation dans le temps."}</li>
             <li>{locale === "en-CA" ? "Pricing plans later amplify the same visibility loop." : "Les plans tarifaires amplifient ensuite cette meme boucle de visibilite."}</li>
           </ul>

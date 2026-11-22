@@ -30,8 +30,8 @@ export function ProviderReputationPage() {
       <section className="panel panel-clean">
         <SectionIntro
           eyebrow={locale === "en-CA" ? "Reputation" : "Reputation"}
-          title={locale === "en-CA" ? "Turn reviews into a trust and conversion asset" : "Transformer les avis en actif de confiance et de conversion"}
-          body={locale === "en-CA" ? "The reputation profile should connect proof, profile quality and the habits that generate better public perception." : "Le profil reputation doit relier les preuves, la qualite du profil et les habitudes qui generent une meilleure perception publique."}
+          title={locale === "en-CA" ? "Your reviews and reputation" : "Vos avis et votre réputation"}
+          body={locale === "en-CA" ? "See how clients rate you and what to improve." : "Découvrez comment les clients vous évaluent et ce qu'il faut améliorer."}
           aside={
             <div className="button-group">
               <button className="secondary-button" onClick={() => navigate(`/${locale}/pro/profil`)} type="button">

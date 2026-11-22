@@ -78,8 +78,8 @@ export function BecomeProviderPage() {
       <section className="panel panel-clean">
         <SectionIntro
           eyebrow={locale === "en-CA" ? "Provider journey" : "Parcours prestataire"}
-          title={locale === "en-CA" ? "Show the path to activation, proof and growth" : "Montrer le chemin entre activation, preuves et croissance"}
-          body={locale === "en-CA" ? "The provider landing page should make the commercial value feel obvious without overselling." : "La landing prestataire doit rendre la valeur commerciale evidente sans sur-vendre."}
+          title={locale === "en-CA" ? "From activation to your first missions" : "De l'activation à vos premières missions"}
+          body={locale === "en-CA" ? "Set up your profile, receive qualified requests and grow at your pace." : "Configurez votre profil, recevez des demandes qualifiées et développez-vous à votre rythme."}
         />
         <div className="steps-rail">
           {journey.map((item, index) => (

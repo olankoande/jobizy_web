@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useApp } from "../../app/AppProvider";
 import { AppIcon } from "../../app/AppIcon";
 import { ActionAssistant, EmptyState, SectionIntro } from "../shared/Shared";
@@ -7,7 +7,8 @@ import { ActionAssistant, EmptyState, SectionIntro } from "../shared/Shared";
 export function SearchPage() {
   const navigate = useNavigate();
   const { locale, categories, services, zones, requests, matches, session } = useApp();
-  const [query, setQuery] = useState("");
+  const [searchParams] = useSearchParams();
+  const [query, setQuery] = useState(searchParams.get("q") ?? "");
   const safeServices = useMemo(() => services.filter((service): service is (typeof services)[number] => Boolean(service)), [services]);
 
   const normalizedQuery = query.trim().toLowerCase();

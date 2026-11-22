@@ -114,7 +114,7 @@ export function ProviderDashboardPage() {
       <section className="panel panel-clean">
         <SectionIntro
           eyebrow={locale === "en-CA" ? "Provider dashboard" : "Dashboard prestataire"}
-          title={locale === "en-CA" ? "Show live demand first, then help the provider turn replies into missions" : "Montrer la demande en premier, puis aider le prestataire a transformer ses reponses en missions"}
+          title={locale === "en-CA" ? "Opportunities near you" : "Opportunités près de chez vous"}
           body={locale === "en-CA" ? "This dashboard is built around opportunities: hot requests to answer, current activity, plan leverage and the fastest route to revenue." : "Ce dashboard est construit autour des opportunites : demandes chaudes a traiter, activite en cours, levier du plan et chemin le plus rapide vers le revenu."}
           aside={
             <div className="button-group">
@@ -141,7 +141,7 @@ export function ProviderDashboardPage() {
         <SectionIntro
           eyebrow={locale === "en-CA" ? "Hot requests" : "Demandes chaudes"}
           title={locale === "en-CA" ? "Requests to answer first" : "Demandes a traiter en priorite"}
-          body={locale === "en-CA" ? "The provider should never arrive on an empty dashboard. Lead cards stay visible and answer-ready." : "Le prestataire ne doit jamais arriver sur un dashboard vide. Les cartes de leads restent visibles et pretes a etre traitees."}
+          body={locale === "en-CA" ? "New requests that match your services and zones, ready for your reply." : "Les nouvelles demandes qui correspondent à vos services et zones, prêtes pour votre réponse."}
         />
         {hotRequests.length === 0 ? (
           <EmptyState
@@ -203,7 +203,7 @@ export function ProviderDashboardPage() {
               </button>
             </div>
           }
-          body={locale === "en-CA" ? "Better conversion starts with a stronger profile, faster replies and visible trust signals." : "Une meilleure conversion commence par un profil plus fort, des reponses plus rapides et des signaux de confiance visibles."}
+          body={locale === "en-CA" ? "A complete profile, fast replies and good reviews help you win more missions." : "Un profil complet, des réponses rapides et de bons avis vous aident à décrocher plus de missions."}
           icon="provider"
           items={profileCompletionItems}
           title={locale === "en-CA" ? "Provider checklist" : "Checklist prestataire"}

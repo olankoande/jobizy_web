@@ -4940,3 +4940,50 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); box-sha
 .icon-badge { min-width: 18px; padding: 0 5px; }
 .mobile-link-badge { min-width: 16px; padding: 0 4px; right: -10px; }
 @media (max-width: 960px) { .icon-button-search { display: none; } .app-topbar-actions { gap: 0.45rem; } }
+
+/* ============================================================
+   Assistant de création de demande — mobile (≤ 720 px)
+   ============================================================ */
+.request-builder-wizard, .request-builder-wizard > *, .wizard-progress-shell, .wizard-main-panel, .wizard-summary-panel { min-width: 0; }
+
+@media (max-width: 720px) {
+  .request-builder-wizard { padding: 1rem; gap: 1rem; }
+  .wizard-main-panel, .wizard-summary-panel { padding: 1rem; }
+  .wizard-heading { text-align: left; }
+  .wizard-heading strong { font-size: 1.15rem; }
+
+  /* Étapes : pastilles numérotées compactes + « Étape X sur 7 » */
+  .wizard-progress-shell { top: 4.25rem; padding: 0.6rem 0.2rem; border-radius: var(--radius-md); gap: 0.5rem; }
+  .wizard-progress-header { display: flex; justify-content: flex-start; }
+  .wizard-progress-header span { display: none; }
+  .wizard-step-pills { display: flex; flex-wrap: nowrap; gap: 0; margin: 0; overflow: visible; }
+  .wizard-step-pill { width: auto; min-width: 0; max-width: none; flex: 1 1 0; padding: 0; font-size: 0; gap: 0; }
+  .wizard-step-pill span:first-child { width: 28px; height: 28px; font-size: 0.8rem; }
+  .wizard-step-pill:not(:last-child)::after { top: 13px; left: calc(50% + 16px); right: calc(-50% + 16px); }
+
+  /* Catégories et choix : 2 colonnes compactes */
+  .wizard-choice-grid, .wizard-choice-grid.wizard-choice-grid-compact { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; }
+  .wizard-choice-grid > button, .wizard-choice-grid > * { padding: 0.75rem; min-width: 0; overflow-wrap: anywhere; }
+
+  /* Pied de l'assistant : au-dessus de la barre de navigation du bas */
+  .wizard-footer { bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px)); }
+  .request-wizard-layout { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Pied de l'assistant sur mobile : Retour | Continuer sur une ligne, « Réinitialiser » en lien discret */
+@media (max-width: 720px) {
+  .wizard-footer { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 0.5rem; padding: 0.6rem; margin-top: 1rem; }
+  .wizard-footer .wizard-footer-actions { display: contents; }
+  .wizard-footer > .ghost-button { order: 1; grid-column: 1; min-height: 46px; width: auto; }
+  .wizard-footer .wizard-footer-actions .primary-button { order: 2; grid-column: 2; min-height: 46px; width: auto; }
+  .wizard-footer .wizard-footer-actions .ghost-button {
+    order: 3; grid-column: 1 / -1; width: auto; min-height: 32px; padding: 0.2rem; border: 0; background: transparent;
+    color: var(--muted); font-size: 0.82rem; font-weight: 500; text-decoration: underline; text-underline-offset: 3px;
+  }
+}
+
+/* Un ancêtre en overflow:hidden désactivait le comportement « collant » du pied : le pied recouvrait les champs */
+@media (max-width: 720px) {
+  .request-builder-wizard, .wizard-main-panel { overflow: visible; }
+  .wizard-main-panel { padding-bottom: 0.5rem; }
+}

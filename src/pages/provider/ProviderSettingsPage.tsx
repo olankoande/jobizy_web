@@ -21,7 +21,7 @@ export function ProviderSettingsPage() {
         <SectionIntro
           eyebrow={locale === "en-CA" ? "Settings" : "Parametres"}
           title={locale === "en-CA" ? "Keep provider notifications, account security and plan reminders easy to manage" : "Garder les notifications prestataire, la securite du compte et les rappels de plan faciles a gerer"}
-          body={locale === "en-CA" ? "The provider settings page should stay practical: what needs your attention, what should notify you and how to keep the account ready for incoming demand." : "La page parametres prestataire doit rester pratique : ce qui demande votre attention, ce qui doit vous notifier et comment garder le compte pret pour la demande entrante."}
+          body={locale === "en-CA" ? "Choose what notifies you and keep your account ready for new requests." : "Choisissez ce qui vous notifie et gardez votre compte prêt pour les nouvelles demandes."}
           aside={
             <div className="button-group">
               <button className="ghost-button" onClick={() => void markAllNotificationsRead()} type="button">

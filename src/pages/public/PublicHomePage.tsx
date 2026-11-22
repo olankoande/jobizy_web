@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "../../app/AppProvider";
+import { AppIcon, type AppIconName } from "../../app/AppIcon";
 import { CategoryIcon } from "../../app/CategoryIcon";
 import {
   getFaqItems,
   getProviderSpotlights,
   getPublicTestimonials,
-  getPublicTrustStats,
   mapPublicProviderSpotlights,
 } from "../../content/marketplaceContent";
 import { SectionIntro } from "../shared/Shared";
@@ -21,8 +21,9 @@ export function PublicHomePage() {
   const [assistantServiceId, setAssistantServiceId] = useState("");
   const [assistantZone, setAssistantZone] = useState("");
   const [assistantNeed, setAssistantNeed] = useState("");
+  const [heroQuery, setHeroQuery] = useState("");
+  const [heroCity, setHeroCity] = useState("");
 
-  const trustStats = useMemo(() => getPublicTrustStats(locale, services, [], null), [locale, services]);
   const providerSpotlights = useMemo(
     () => mapPublicProviderSpotlights(locale, publicProviders).length > 0 ? mapPublicProviderSpotlights(locale, publicProviders) : getProviderSpotlights(locale),
     [locale, publicProviders],
@@ -46,30 +47,6 @@ export function PublicHomePage() {
   useEffect(() => {
     if (!assistantServiceId && assistantServices[0]?.id) setAssistantServiceId(assistantServices[0].id);
   }, [assistantServiceId, assistantServices]);
-
-  const heroCopy = audience === "client"
-    ? {
-        eyebrow: locale === "en-CA" ? "Client-first marketplace" : "Marketplace orientee client",
-        title: locale === "en-CA"
-          ? "Find the right local provider without turning the process into a project."
-          : "Trouvez le bon prestataire local sans transformer votre besoin en parcours complexe.",
-        body: locale === "en-CA"
-          ? "Post a request, receive replies from qualified providers, discuss the job and organize the service directly."
-          : "Publiez une demande, recevez des reponses de prestataires qualifies, discutez puis organisez la prestation directement.",
-        primary: locale === "en-CA" ? "Post a request" : "Publier une demande",
-        secondary: locale === "en-CA" ? "Become a provider" : "Devenir prestataire",
-      }
-    : {
-        eyebrow: locale === "en-CA" ? "Provider growth" : "Croissance prestataire",
-        title: locale === "en-CA"
-          ? "Receive qualified local opportunities and build a stronger provider presence."
-          : "Recevez des opportunites locales qualifiees et renforcez votre presence prestataire.",
-        body: locale === "en-CA"
-          ? "Activate your provider space, receive targeted requests, reply faster and grow with a clear subscription model."
-          : "Activez votre espace prestataire, recevez des demandes ciblees, repondez plus vite et developpez-vous avec un abonnement clair.",
-        primary: locale === "en-CA" ? "Become a provider" : "Devenir prestataire",
-        secondary: locale === "en-CA" ? "Post a request" : "Publier une demande",
-      };
 
   const clientSteps = locale === "en-CA"
     ? [
@@ -139,92 +116,126 @@ export function PublicHomePage() {
         { value: "4.9/5", label: "satisfaction moyenne" },
       ];
 
+  const heroStats: { value: string; label: string; icon: AppIconName }[] = [
+    { value: String(services.length || featuredServices.length), label: locale === "en-CA" ? "services available" : "services disponibles", icon: "requests" },
+    { value: String(categories.length), label: locale === "en-CA" ? "categories" : "catégories", icon: "spark" },
+    { value: String(cityOptions.length), label: locale === "en-CA" ? "cities covered" : "villes couvertes", icon: "location" },
+    { value: locale === "en-CA" ? "Direct" : "Direct", label: locale === "en-CA" ? "payment with your provider" : "paiement avec votre prestataire", icon: "wallet" },
+  ];
+
   const requestTarget = `/${locale}/app/demandes`;
   const requestCtaHref = session ? requestTarget : `/${locale}/inscription?next=${encodeURIComponent(requestTarget)}`;
   const providerCtaHref = session ? `/${locale}/pro` : `/${locale}/devenir-prestataire`;
 
   return (
     <section className="stack stack-xl public-home">
-      <section className={locale === "en-CA" ? "hero hero-public public-home-hero" : "hero hero-public public-home-hero public-home-hero-single"}>
-        <div className="hero-copy hero-copy-public">
-          <p className="eyebrow">{heroCopy.eyebrow}</p>
-          <h1>{heroCopy.title}</h1>
-          <p className="hero-subtitle">{heroCopy.body}</p>
+      <section className="home-hero">
+        <div className="home-hero-copy">
+          <span className="home-hero-badge">
+            <AppIcon className="button-icon" name="check" />
+            {locale === "en-CA" ? "Verified local providers" : "Prestataires locaux vérifiés"}
+          </span>
+          <h1>{locale === "en-CA" ? "Find the right provider for all your needs" : "Trouvez le bon prestataire pour tous vos besoins"}</h1>
+          <p className="home-hero-sub">
+            {locale === "en-CA"
+              ? "Jobizy connects you with trusted professionals, close to home."
+              : "Jobizy vous met en relation avec des professionnels de confiance, près de chez vous."}
+          </p>
 
-          <div className="audience-switch" role="tablist" aria-label={locale === "en-CA" ? "Audience" : "Audience"}>
-            <button
-              className={audience === "client" ? "segmented-button nav-chip-active" : "segmented-button"}
-              onClick={() => setAudience("client")}
-              type="button"
-            >
-              {locale === "en-CA" ? "Client" : "Client"}
+          <form
+            className="home-search"
+            onSubmit={(event) => {
+              event.preventDefault();
+              const params = new URLSearchParams();
+              if (heroQuery.trim()) params.set("q", heroQuery.trim());
+              if (heroCity) params.set("ville", heroCity);
+              const qs = params.toString();
+              navigate(`/${locale}/recherche${qs ? `?${qs}` : ""}`);
+            }}
+            role="search"
+          >
+            <label className="home-search-field">
+              <AppIcon className="button-icon" name="search" />
+              <input
+                aria-label={locale === "en-CA" ? "Which service are you looking for?" : "Quel service recherchez-vous ?"}
+                id="home-search-query"
+                onChange={(event) => setHeroQuery(event.target.value)}
+                placeholder={locale === "en-CA" ? "Which service are you looking for?" : "Quel service recherchez-vous ?"}
+                value={heroQuery}
+              />
+            </label>
+            <label className="home-search-field home-search-city">
+              <AppIcon className="button-icon" name="location" />
+              <select
+                aria-label={locale === "en-CA" ? "Your city" : "Votre ville"}
+                id="home-search-city"
+                onChange={(event) => setHeroCity(event.target.value)}
+                value={heroCity}
+              >
+                <option value="">{locale === "en-CA" ? "Your city" : "Votre ville"}</option>
+                {cityOptions.map((city) => (
+                  <option key={city} value={city}>{city}</option>
+                ))}
+              </select>
+            </label>
+            <button aria-label={locale === "en-CA" ? "Search" : "Rechercher"} className="home-search-submit" type="submit">
+              <AppIcon className="button-icon" name="search" />
             </button>
-            <button
-              className={audience === "provider" ? "segmented-button nav-chip-active" : "segmented-button"}
-              onClick={() => setAudience("provider")}
-              type="button"
-            >
-              {locale === "en-CA" ? "Provider" : "Prestataire"}
-            </button>
-          </div>
+          </form>
 
-          <div className="cta-row">
-            <button className="primary-button" onClick={() => navigate(audience === "client" ? requestCtaHref : providerCtaHref)} type="button">
-              {heroCopy.primary}
+          <div className="home-hero-cta">
+            <button className="primary-button" onClick={() => navigate(requestCtaHref)} type="button">
+              {locale === "en-CA" ? "Post a request" : "Publier une demande"}
             </button>
-            <button className="secondary-button" onClick={() => navigate(audience === "client" ? providerCtaHref : requestCtaHref)} type="button">
-              {heroCopy.secondary}
+            <button className="outline-button" onClick={() => navigate(providerCtaHref)} type="button">
+              {locale === "en-CA" ? "Become a provider" : "Devenir prestataire"}
             </button>
-          </div>
-
-          <div className="trust-inline">
-            <span className="status-chip status-chip-success">{locale === "en-CA" ? "Verified providers" : "Prestataires verifies"}</span>
-            <span className="status-chip">{locale === "en-CA" ? "Fast replies" : "Reponses rapides"}</span>
-            <span className="status-chip">{locale === "en-CA" ? "Payment outside Jobizy" : "Paiement hors Jobizy"}</span>
-            <span className="status-chip">{locale === "en-CA" ? "Client reviews" : "Avis clients"}</span>
-          </div>
-
-          <div className="stats-inline">
-            {trustStats.map((item) => (
-              <article className="mini-stat" key={item.label}>
-                <strong>{item.value}</strong>
-                <span>{item.label}</span>
-              </article>
-            ))}
           </div>
         </div>
 
-        {locale === "en-CA" ? (
-          <div className="hero-visual-stack">
-            <article className="hero-showcase hero-conversion-showcase hero-showcase-plain">
-              <div className="hero-showcase-copy">
-                <p className="eyebrow">What happens next</p>
-                <div className="hero-summary-grid">
-                  <article className="mockup-card">
-                    <strong>1. Post a clear request</strong>
-                    <p>{featuredServices[0]?.name || "Local service"}</p>
-                    <span className="status-chip">Guided form</span>
-                  </article>
-                  <article className="mockup-card">
-                    <strong>2. Receive and compare replies</strong>
-                    <p>Price, timing, trust signals and messaging stay in one place.</p>
-                  </article>
-                  <article className="mockup-card">
-                    <strong>3. Organize the service directly</strong>
-                    <p>Payment happens outside Jobizy. The platform stays focused on matching and follow-up.</p>
-                  </article>
-                </div>
-              </div>
-            </article>
+        <div aria-hidden="true" className="home-hero-visual">
+          <span className="hv-shape hv-shape-orange" />
+          <span className="hv-shape hv-shape-blue" />
+          <div className="hv-card hv-card-main">
+            <span className="hv-check"><AppIcon name="check" /></span>
+            <div>
+              <strong>{locale === "en-CA" ? "Request posted" : "Demande publiée"}</strong>
+              <small>{locale === "en-CA" ? "Offers are on their way" : "Les offres arrivent"}</small>
+            </div>
           </div>
-        ) : null}
+          <div className="hv-card hv-card-offer">
+            <span className="hv-avatar">AP</span>
+            <div>
+              <strong>{locale === "en-CA" ? "New offer" : "Nouvelle offre"}</strong>
+              <small>{locale === "en-CA" ? "Price, timing and reviews" : "Prix, délai et avis"}</small>
+            </div>
+          </div>
+        </div>
       </section>
 
-      <section className="trust-band">
-        <span>{locale === "en-CA" ? "Verified providers" : "Prestataires verifies"}</span>
-        <span>{locale === "en-CA" ? "Fast responses" : "Reponses rapides"}</span>
-        <span>{locale === "en-CA" ? "Direct service arrangement" : "Organisation directe de la prestation"}</span>
-        <span>{locale === "en-CA" ? "Visible client reviews" : "Avis clients visibles"}</span>
+      <section className="home-categories" aria-label={locale === "en-CA" ? "Popular categories" : "Catégories populaires"}>
+        {featuredCategories.map((category) => (
+          <button className="home-category" key={category.id} onClick={() => navigate(`/${locale}/categories`)} type="button">
+            <CategoryIcon icon={category.icon} size={26} />
+            <span>{category.name}</span>
+          </button>
+        ))}
+        <button className="home-category home-category-more" onClick={() => navigate(`/${locale}/categories`)} type="button">
+          <span className="home-category-dots">•••</span>
+          <span>{locale === "en-CA" ? "And more" : "Et bien plus…"}</span>
+        </button>
+      </section>
+
+      <section className="home-stats">
+        {heroStats.map((item) => (
+          <div className="home-stat" key={item.label}>
+            <AppIcon className="home-stat-icon" name={item.icon} />
+            <div>
+              <strong>{item.value}</strong>
+              <span>{item.label}</span>
+            </div>
+          </div>
+        ))}
       </section>
 
       <section className="panel panel-clean request-home-assistant">
@@ -305,10 +316,10 @@ export function PublicHomePage() {
       <section className="panel panel-clean" id="comment-ca-marche">
         <SectionIntro
           eyebrow={locale === "en-CA" ? "How it works" : "Comment ca marche"}
-          title={locale === "en-CA" ? "A simple path for clients and a clearer opportunity for providers" : "Un parcours simple pour les clients et une opportunite claire pour les prestataires"}
+          title={locale === "en-CA" ? "A simple path for clients, a clear opportunity for providers" : "Un parcours simple pour les clients, une vraie opportunité pour les prestataires"}
           body={locale === "en-CA"
-            ? "Jobizy has to explain the product quickly, without mixing every audience in the same paragraph."
-            : "Jobizy doit expliquer le produit vite, sans melanger les deux cibles dans le meme paragraphe."}
+            ? "Choose your side: post a request as a client, or grow your activity as a provider."
+            : "Choisissez votre côté : publier une demande en tant que client, ou développer votre activité en tant que prestataire."}
         />
 
         <div className="button-group">
@@ -344,8 +355,8 @@ export function PublicHomePage() {
           eyebrow={locale === "en-CA" ? "Categories" : "Categories"}
           title={locale === "en-CA" ? "Explore the services available on Jobizy" : "Explorez les services disponibles sur Jobizy"}
           body={locale === "en-CA"
-            ? "Concrete categories help visitors project themselves quickly and increase conversion."
-            : "Des categories concretes aident le visiteur a se projeter vite et renforcent la conversion."}
+            ? "Browse by category to find the right service quickly."
+            : "Parcourez les catégories pour trouver rapidement le bon service."}
           aside={<button className="ghost-button" onClick={() => navigate(`/${locale}/categories`)} type="button">{locale === "en-CA" ? "See all categories" : "Voir toutes les categories"}</button>}
         />
         <div className="category-feature-grid">
@@ -369,10 +380,10 @@ export function PublicHomePage() {
       <section className="panel panel-clean">
         <SectionIntro
           eyebrow={locale === "en-CA" ? "Why Jobizy" : "Pourquoi Jobizy"}
-          title={locale === "en-CA" ? "Built to reduce hesitation and increase action" : "Construit pour reduire l'hesitation et augmenter l'action"}
+          title={locale === "en-CA" ? "Why people choose Jobizy" : "Pourquoi choisir Jobizy"}
           body={locale === "en-CA"
-            ? "This section should feel commercial, not descriptive."
-            : "Cette section doit etre commerciale, pas simplement descriptive."}
+            ? "Speed, easy comparison and trust, from the first request."
+            : "Rapidité, comparaison facile et confiance, dès la première demande."}
         />
         <div className="trust-grid">
           {differentiators.map((item) => (
@@ -387,10 +398,10 @@ export function PublicHomePage() {
       <section className="panel panel-clean" id="prestataires">
         <SectionIntro
           eyebrow={locale === "en-CA" ? "Featured providers" : "Prestataires en vedette"}
-          title={locale === "en-CA" ? "Show the marketplace is alive and trustworthy" : "Montrer que la marketplace est vivante et credible"}
+          title={locale === "en-CA" ? "Providers near you" : "Des prestataires près de chez vous"}
           body={locale === "en-CA"
-            ? "Visible provider proof improves trust before the first click."
-            : "Des profils visibles renforcent la confiance avant meme le premier clic."}
+            ? "Reviews, verification and response time are visible on every profile."
+            : "Avis, vérification et délai de réponse sont visibles sur chaque profil."}
           aside={<button className="ghost-button" onClick={() => navigate(`/${locale}/prestataires`)} type="button">{locale === "en-CA" ? "See providers" : "Voir les prestataires"}</button>}
         />
         <div className="provider-spotlight-grid">
@@ -419,7 +430,7 @@ export function PublicHomePage() {
       <section className="panel panel-clean">
         <SectionIntro
           eyebrow={locale === "en-CA" ? "Proof and traction" : "Preuves et traction"}
-          title={locale === "en-CA" ? "Reassure both sides with a few solid indicators" : "Rassurer les deux cotes avec quelques indicateurs solides"}
+          title={locale === "en-CA" ? "Jobizy in numbers" : "Jobizy en chiffres"}
         />
         <div className="hero-panel">
           {numbers.map((item) => (
@@ -445,8 +456,8 @@ export function PublicHomePage() {
           eyebrow={locale === "en-CA" ? "Provider pricing" : "Abonnements prestataire"}
           title={locale === "en-CA" ? "Grow your activity with Jobizy" : "Developpez votre activite avec Jobizy"}
           body={locale === "en-CA"
-            ? "Introduce monetization after the core value is already clear."
-            : "Introduire la monetisation apres avoir rendu la valeur tres claire."}
+            ? "Pick the plan that matches your activity."
+            : "Choisissez le plan qui correspond à votre activité."}
           aside={<button className="ghost-button" onClick={() => navigate(`/${locale}/tarifs`)} type="button">{locale === "en-CA" ? "See plans" : "Voir les abonnements"}</button>}
         />
         <div className="plan-list">
@@ -476,7 +487,7 @@ export function PublicHomePage() {
       <section className="panel panel-clean">
         <SectionIntro
           eyebrow={locale === "en-CA" ? "Security and trust" : "Securite et confiance"}
-          title={locale === "en-CA" ? "A marketplace needs clear operational reassurance" : "Une marketplace a besoin de reassurance operationnelle claire"}
+          title={locale === "en-CA" ? "Your safety and peace of mind" : "Votre sécurité et votre tranquillité d'esprit"}
         />
         <div className="trust-grid">
           {securityPoints.map((item) => (
@@ -490,7 +501,7 @@ export function PublicHomePage() {
       <section className="panel panel-clean" id="faq">
         <SectionIntro
           eyebrow="FAQ"
-          title={locale === "en-CA" ? "Short answers to the questions that block action" : "Des reponses courtes aux questions qui bloquent l'action"}
+          title={locale === "en-CA" ? "Frequently asked questions" : "Questions fréquentes"}
         />
         <div className="faq-grid">
           {faqItems.map((item) => (

@@ -35,7 +35,7 @@ export function ClientSettingsPage() {
         <SectionIntro
           eyebrow={locale === "en-CA" ? "Settings" : "Parametres"}
           title={locale === "en-CA" ? "Keep notifications, security and privacy easy to manage" : "Garder notifications, securite et confidentialite faciles a gerer"}
-          body={locale === "en-CA" ? "Settings should stay lightweight: clear toggles, account reminders and direct links to the places where action matters." : "Les parametres doivent rester legers : toggles clairs, rappels de compte et liens directs vers les zones utiles."}
+          body={locale === "en-CA" ? "Manage your notifications and account preferences." : "Gérez vos notifications et les préférences de votre compte."}
           aside={
             <div className="button-group">
               <button className="ghost-button" onClick={() => void markAllNotificationsRead()} type="button">

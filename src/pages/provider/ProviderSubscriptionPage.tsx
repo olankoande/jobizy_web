@@ -22,7 +22,7 @@ export function ProviderSubscriptionPage() {
         <SectionIntro
           eyebrow={locale === "en-CA" ? "Subscription" : "Abonnement"}
           title={locale === "en-CA" ? "Compare plans through business outcomes, not just labels" : "Comparer les plans par resultat business, pas seulement par etiquette"}
-          body={locale === "en-CA" ? "The pricing page should make the upgrade path feel simple, concrete and trustworthy." : "La page pricing doit rendre le chemin d'upgrade simple, concret et rassurant."}
+          body={locale === "en-CA" ? "Compare the plans and change level whenever you want." : "Comparez les plans et changez de niveau quand vous le souhaitez."}
         />
         <div className="plan-list">
           {plans.map((plan, index) => (
@@ -64,7 +64,7 @@ export function ProviderSubscriptionPage() {
         <SectionIntro
           eyebrow={locale === "en-CA" ? "Current subscription" : "Abonnement actuel"}
           title={locale === "en-CA" ? "Keep current status and renewal dates crystal clear" : "Rendre le statut actuel et les echeances tres lisibles"}
-          body={locale === "en-CA" ? "This section should reduce doubt after purchase and make plan management feel controlled." : "Cette section doit reduire le doute apres achat et rendre la gestion du plan plus sereine."}
+          body={locale === "en-CA" ? "Your current plan, its limits and your subscription status." : "Votre plan actuel, ses limites et l'état de votre abonnement."}
         />
         <div className="stack">
           {subscriptions.length === 0 ? (

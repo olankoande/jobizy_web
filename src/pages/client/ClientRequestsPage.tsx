@@ -1235,7 +1235,7 @@ export function ClientRequestsPage() {
               <div className="stack">
                 <div className="wizard-heading">
                   <strong>{locale === "en-CA" ? "Add visual context if it helps" : "Ajoutez du contexte visuel si utile"}</strong>
-                  <p>{locale === "en-CA" ? "Photo upload is prepared here so you can describe what providers should look at." : "L'etape photo vous permet deja de preciser ce que les prestataires doivent regarder."}</p>
+                  <p>{locale === "en-CA" ? "Add a note about what providers should look at." : "Précisez ce que les prestataires doivent regarder."}</p>
                 </div>
 
                 <div className="form-grid form-grid-pro">
@@ -1274,7 +1274,7 @@ export function ClientRequestsPage() {
                     ? (locale === "en-CA" ? "Save changes to update your published request. It will remain visible to providers." : "Enregistrez les modifications pour mettre a jour votre demande publiee. Elle restera visible par les prestataires.")
                     : editingDraftId
                       ? (locale === "en-CA" ? "Save changes to update this draft. You can publish it afterwards from your requests list." : "Enregistrez les modifications pour mettre a jour ce brouillon. Vous pourrez le publier ensuite depuis la liste.")
-                      : (locale === "en-CA" ? "This final step reassures the client, avoids missing details and turns hesitation into action." : "Cette derniere etape rassure le client, evite les oublis et transforme l'hesitation en action.")
+                      : (locale === "en-CA" ? "Review everything before publishing so nothing is missed." : "Relisez tout avant de publier pour ne rien oublier.")
                   }</p>
                 </div>
 

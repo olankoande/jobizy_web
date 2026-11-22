@@ -50,7 +50,7 @@ export function CookieConsent({ locale }: { locale: string }) {
         <strong style={{ fontSize: "0.95rem", display: "block", marginBottom: "0.3rem" }}>
           {fr ? "Nous utilisons des cookies" : "We use cookies"}
         </strong>
-        <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", margin: 0, lineHeight: 1.5 }}>
+        <p style={{ fontSize: "0.82rem", color: "var(--muted)", margin: 0, lineHeight: 1.5 }}>
           {fr
             ? "Jobizy utilise des cookies essentiels pour faire fonctionner la plateforme (session, langue). Aucun cookie publicitaire."
             : "Jobizy uses essential cookies to operate the platform (session, language). No advertising cookies."}

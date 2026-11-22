@@ -1,12 +1,8 @@
 import { createDispute, createReview } from "../../lib/api";
 import { useApp } from "../../app/AppProvider";
 import { t } from "../../content/i18n";
+import { MissionSummary } from "../shared/MissionSummary";
 import { EmptyState } from "../shared/Shared";
-
-function formatDate(value?: string | null) {
-  if (!value) return "-";
-  return new Intl.DateTimeFormat("fr-CA", { dateStyle: "medium" }).format(new Date(value));
-}
 
 export function ClientMissionsPage() {
   const { locale, session, missions, providerProfile, updateMissionStatus, refresh } = useApp();
@@ -16,9 +12,8 @@ export function ClientMissionsPage() {
       <div className="stack">
         {missions.length === 0 ? <EmptyState title={t(locale, "noMission")} /> : null}
         {missions.map((mission) => (
-          <article className="list-card" key={mission.id}>
-            <div><strong>{mission.id}</strong><p>{t(locale, "linkedMission")} {mission.request_id}</p></div>
-            <div className="card-meta"><span className="status-chip">{mission.status}</span><span>{formatDate(mission.created_at)}</span></div>
+          <article className="mission-card" key={mission.id}>
+            <MissionSummary counterpart="provider" locale={locale} mission={mission} />
             <div className="cta-row">
               {mission.status === "en_cours" ? <button className="primary-button" onClick={() => void updateMissionStatus(mission.id, "complete")} type="button">{t(locale, "complete")}</button> : null}
               {!["terminee", "annulee", "en_litige"].includes(mission.status) ? <button className="ghost-button" onClick={() => void updateMissionStatus(mission.id, "cancel")} type="button">{t(locale, "cancel")}</button> : null}

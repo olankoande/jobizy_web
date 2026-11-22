@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useApp } from "../../app/AppProvider";
 import { createReview } from "../../lib/api";
 import type { Mission } from "../../types";
-import { EmptyState, SectionIntro, StatCard } from "../shared/Shared";
+import { clientName, MissionSummary, missionTitle } from "../shared/MissionSummary";
+import { EmptyState, isMissionActive, isMissionCancelled, isMissionCompleted, SectionIntro, StatCard } from "../shared/Shared";
 import { Modal } from "../../components/Modal";
 
 function formatDate(value?: string | null) {
@@ -99,31 +100,9 @@ export function ProviderMissionsPage() {
   const [reviewedMissionIds, setReviewedMissionIds] = useState<string[]>([]);
   const fr = locale !== "en-CA";
 
-  const inProgress = useMemo(
-    () => missions.filter((m) => ["confirmee", "planifiee", "en_cours"].includes(m.status)),
-    [missions],
-  );
-  const completed = useMemo(() => missions.filter((m) => m.status === "terminee" || m.status === "completed"), [missions]);
-  const cancelled = useMemo(() => missions.filter((m) => m.status === "annulee" || m.status === "cancelled"), [missions]);
-
-  const STATUS_LABEL: Record<string, { fr: string; en: string; chip: string }> = {
-    confirmee: { fr: "Confirmée", en: "Confirmed", chip: "status-chip-brand" },
-    planifiee: { fr: "Planifiée", en: "Scheduled", chip: "status-chip-published" },
-    en_cours: { fr: "En cours", en: "In progress", chip: "status-chip-discussion" },
-    terminee: { fr: "Terminée", en: "Completed", chip: "status-chip-success" },
-    completed: { fr: "Terminée", en: "Completed", chip: "status-chip-success" },
-    annulee: { fr: "Annulée", en: "Cancelled", chip: "status-chip-cancelled" },
-    cancelled: { fr: "Annulée", en: "Cancelled", chip: "status-chip-cancelled" },
-  };
-
-  function statusLabel(status: string) {
-    const s = STATUS_LABEL[status];
-    if (!s) return status;
-    return fr ? s.fr : s.en;
-  }
-  function statusChip(status: string) {
-    return STATUS_LABEL[status]?.chip ?? "";
-  }
+  const inProgress = useMemo(() => missions.filter((m) => isMissionActive(m.status)), [missions]);
+  const completed = useMemo(() => missions.filter((m) => isMissionCompleted(m.status)), [missions]);
+  const cancelled = useMemo(() => missions.filter((m) => isMissionCancelled(m.status)), [missions]);
 
   return (
     <section className="stack stack-xl">
@@ -168,49 +147,39 @@ export function ProviderMissionsPage() {
             />
           ) : (
             missions.map((mission) => {
-              const isCompleted = mission.status === "terminee" || mission.status === "completed";
+              const isCompleted = isMissionCompleted(mission.status);
               const canReview = isCompleted && !reviewedMissionIds.includes(mission.id);
+              const unread = Number(mission.unread_messages_provider_count ?? 0);
               return (
-                <article className="list-card" key={mission.id}>
-                  <div className="service-card-header">
-                    <div>
-                      <strong>{fr ? "Mission" : "Mission"} #{mission.id.slice(0, 8)}</strong>
-                      <p style={{ fontSize: "0.78rem", color: "#6b7280" }}>
-                        {fr ? "Créée le" : "Created"} {formatDate(mission.created_at)}
-                        {mission.completed_at && ` · ${fr ? "Terminée le" : "Completed"} ${formatDate(mission.completed_at)}`}
-                      </p>
-                    </div>
-                    <span className={`status-chip ${statusChip(mission.status)}`}>
-                      {statusLabel(mission.status)}
-                    </span>
-                  </div>
+                <article className="mission-card" key={mission.id}>
+                  <MissionSummary counterpart="client" locale={locale} mission={mission} />
 
                   <div className="cta-row">
                     {mission.status === "confirmee" && (
-                      <button className="primary-button" onClick={() => void updateMissionStatus(mission.id, "plan")} type="button">
+                      <button className="primary-button compact-button" onClick={() => void updateMissionStatus(mission.id, "plan")} type="button">
                         {fr ? "Planifier" : "Schedule"}
                       </button>
                     )}
                     {["confirmee", "planifiee"].includes(mission.status) && (
-                      <button className="primary-button" onClick={() => void updateMissionStatus(mission.id, "start")} type="button">
+                      <button className="primary-button compact-button" onClick={() => void updateMissionStatus(mission.id, "start")} type="button">
                         {fr ? "Démarrer" : "Start"}
                       </button>
                     )}
                     {mission.status === "en_cours" && (
-                      <button className="primary-button" onClick={() => void updateMissionStatus(mission.id, "complete")} type="button">
+                      <button className="primary-button compact-button" onClick={() => void updateMissionStatus(mission.id, "complete")} type="button">
                         {fr ? "Marquer terminée" : "Mark complete"}
                       </button>
                     )}
-                    <button className="ghost-button" onClick={() => navigate(`/${locale}/pro/messages`)} type="button">
-                      {fr ? "Contacter le client" : "Contact client"}
+                    <button className="outline-button compact-button" onClick={() => navigate(`/${locale}/pro/messages`)} type="button">
+                      {fr ? "Contacter le client" : "Contact client"}{unread > 0 ? ` (${unread})` : ""}
                     </button>
                     {canReview && (
-                      <button className="btn btn-outline btn-sm" onClick={() => setOpenReviewFor(mission.id)} type="button">
+                      <button className="ghost-button compact-button" onClick={() => setOpenReviewFor(mission.id)} type="button">
                         {fr ? "Noter le client" : "Rate client"}
                       </button>
                     )}
                     {isCompleted && reviewedMissionIds.includes(mission.id) && (
-                      <span style={{ fontSize: "0.78rem", color: "#10b981" }}>✓ {fr ? "Client noté" : "Client rated"}</span>
+                      <span className="status-pill status-pill-success">✓ {fr ? "Client noté" : "Client rated"}</span>
                     )}
                   </div>
                 </article>
@@ -231,7 +200,8 @@ export function ProviderMissionsPage() {
                 </button>
               </div>
               <p style={{ fontSize: "0.8rem", color: "#6b7280", marginBottom: "0.75rem" }}>
-                {fr ? "Mission" : "Mission"} #{mission.id.slice(0, 8)}
+                {missionTitle(mission, fr)}
+                {clientName(mission) && ` · ${clientName(mission)}`}
                 {mission.completed_at && ` · ${fr ? "Terminée le" : "Completed"} ${formatDate(mission.completed_at)}`}
               </p>
               <ProviderReviewForm

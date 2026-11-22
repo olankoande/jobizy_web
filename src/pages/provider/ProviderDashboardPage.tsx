@@ -4,7 +4,7 @@ import { useApp } from "../../app/AppProvider";
 import { ProviderOnboarding } from "../../components/ProviderOnboarding";
 import { getAvailabilities, getProviderServices, getProviderZones } from "../../lib/api";
 import { AppIcon } from "../../app/AppIcon";
-import { ActionAssistant, EmptyState, SectionIntro, StatCard, ToneCard } from "../shared/Shared";
+import { ActionAssistant, statusLabel, EmptyState, isMissionActive, isMissionCompleted, SectionIntro, StatCard, ToneCard } from "../shared/Shared";
 
 function formatDate(value?: string | null) {
   if (!value) return "-";
@@ -34,11 +34,11 @@ export function ProviderDashboardPage() {
   const hotRequests = useMemo(() => matches.filter((item) => !item.responded_at).slice(0, 4), [matches]);
   const answeredCount = useMemo(() => matches.filter((item) => Boolean(item.responded_at)).length, [matches]);
   const activeMissions = useMemo(
-    () => missions.filter((mission) => mission.status === "in_progress" || mission.status === "scheduled").length,
+    () => missions.filter((mission) => isMissionActive(mission.status)).length,
     [missions],
   );
   const completedMissions = useMemo(
-    () => missions.filter((mission) => mission.status === "completed").length,
+    () => missions.filter((mission) => isMissionCompleted(mission.status)).length,
     [missions],
   );
   const L = (fr: string, en: string) => (locale === "en-CA" ? en : fr);
@@ -58,7 +58,7 @@ export function ProviderDashboardPage() {
       ...missions.slice(0, 2).map((mission) => ({
         id: `mission-${mission.id}`,
         title: locale === "en-CA" ? "Mission update" : "Mise a jour mission",
-        body: `${locale === "en-CA" ? "Mission" : "Mission"} ${mission.status}`,
+        body: `${mission.request_title || mission.service_name || "Mission"} · ${statusLabel(locale, mission.status)}`,
         meta: formatDate(mission.created_at),
       })),
     ].slice(0, 4),

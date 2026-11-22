@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { t } from "../content/i18n";
 import type { Locale } from "../types";
@@ -6,6 +6,7 @@ import { Avatar } from "../components/Avatar";
 import { CookieConsent } from "../components/CookieConsent";
 import { InstallPrompt } from "../components/InstallPrompt";
 import { SkeletonBlock } from "../pages/shared/Shared";
+import { getConversations } from "../lib/api";
 import { useApp } from "./AppProvider";
 import { AppIcon, type AppIconName } from "./AppIcon";
 
@@ -25,6 +26,33 @@ export function AppShell() {
   const activeWorkspace = isProviderRoute ? "provider" : "client";
   const isPublic = !session;
   const unreadCount = notifications.filter((item) => !item.is_read).length;
+  const [messagesUnread, setMessagesUnread] = useState(0);
+
+  // Nombre réel de messages non lus : actualisé au changement de page, au retour sur l'onglet et toutes les 30 s
+  useEffect(() => {
+    if (!session) {
+      setMessagesUnread(0);
+      return;
+    }
+    let cancelled = false;
+    async function refresh() {
+      try {
+        const conversations = await getConversations(session!, locale);
+        if (!cancelled) setMessagesUnread(conversations.reduce((sum, item) => sum + Number(item.unread_count ?? 0), 0));
+      } catch {
+        /* garde la dernière valeur connue */
+      }
+    }
+    void refresh();
+    const timer = window.setInterval(refresh, 30_000);
+    const onVisible = () => { if (document.visibilityState === "visible") void refresh(); };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [session, locale, location.pathname]);
 
   const clientLinks: ShellLink[] = [
     { label: locale === "en-CA" ? "Dashboard" : "Tableau de bord", href: `/${locale}/app`, icon: "home" },
@@ -227,7 +255,7 @@ export function AppShell() {
         <nav className="sidebar-nav">
           {activeLinks.map((item) => {
             const isMessages = item.href.endsWith("/messages");
-            const badge = isMessages && unreadCount > 0 ? unreadCount : 0;
+            const badge = isMessages ? messagesUnread : 0;
             return (
               <NavLink
                 key={item.href}
@@ -238,7 +266,7 @@ export function AppShell() {
               >
                 <AppIcon className="button-icon" name={item.icon} />
                 <span>{item.label}</span>
-                {badge > 0 ? <span className="sidebar-badge">{badge > 9 ? "9+" : badge}</span> : null}
+                {badge > 0 ? <span className="sidebar-badge">{badge}</span> : null}
               </NavLink>
             );
           })}
@@ -272,17 +300,26 @@ export function AppShell() {
           </button>
           <div className="app-topbar-brand">{brandButton}</div>
           <div className="app-topbar-actions">
-            <button className="icon-button" onClick={() => navigate(`/${locale}/recherche`)} aria-label={locale === "en-CA" ? "Search" : "Recherche"} type="button">
+            <button className="icon-button icon-button-search" onClick={() => navigate(`/${locale}/recherche`)} aria-label={locale === "en-CA" ? "Search" : "Recherche"} type="button">
               <AppIcon className="button-icon" name="search" />
             </button>
             <button
               className="icon-button icon-button-badge"
-              onClick={() => navigate(activeWorkspace === "provider" ? `/${locale}/pro/messages` : `/${locale}/app/notifications`)}
-              aria-label="Notifications"
+              onClick={() => navigate(activeWorkspace === "provider" ? `/${locale}/pro/messages` : `/${locale}/app/messages`)}
+              aria-label={messagesUnread > 0 ? `Messages (${messagesUnread})` : "Messages"}
+              type="button"
+            >
+              <AppIcon className="button-icon" name="messages" />
+              {messagesUnread > 0 ? <span className="icon-badge">{messagesUnread}</span> : null}
+            </button>
+            <button
+              className="icon-button icon-button-badge"
+              onClick={() => navigate(`/${locale}/app/notifications`)}
+              aria-label={unreadCount > 0 ? `Notifications (${unreadCount})` : "Notifications"}
               type="button"
             >
               <AppIcon className="button-icon" name="notifications" />
-              {unreadCount > 0 ? <span className="icon-badge">{unreadCount > 9 ? "9+" : unreadCount}</span> : null}
+              {unreadCount > 0 ? <span className="icon-badge">{unreadCount}</span> : null}
             </button>
             {langSelect}
             {isProviderRoute ? (
@@ -314,7 +351,7 @@ export function AppShell() {
         <nav aria-label="Navigation mobile" className="mobile-bottom-nav">
           {mobileLinks.map((item) => {
             const isMessages = item.href.endsWith("/messages");
-            const badge = isMessages && unreadCount > 0 ? unreadCount : 0;
+            const badge = isMessages ? messagesUnread : 0;
             return (
               <NavLink
                 key={item.href}
@@ -323,7 +360,7 @@ export function AppShell() {
               >
                 <span className="mobile-link-wrap">
                   <AppIcon name={item.icon} />
-                  {badge > 0 ? <span className="mobile-link-badge">{badge > 9 ? "9+" : badge}</span> : null}
+                  {badge > 0 ? <span className="mobile-link-badge">{badge}</span> : null}
                 </span>
                 <span>{item.label}</span>
               </NavLink>

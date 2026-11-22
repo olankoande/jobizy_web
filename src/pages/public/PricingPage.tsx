@@ -90,7 +90,11 @@ export function PricingPage() {
               <span>{locale === "en-CA" ? "Visibility boost" : "Visibilité renforcée"}</span>
             </div>
             <button className="primary-button" onClick={() => navigate(providerCtaHref)} type="button">
-              {session ? (locale === "en-CA" ? "Manage subscription" : "Gérer mon abonnement") : (locale === "en-CA" ? "Become a provider" : "Devenir prestataire")}
+              {session
+                ? (locale === "en-CA" ? "Manage subscription" : "Gérer mon abonnement")
+                : plan.price_cents === 0
+                  ? (locale === "en-CA" ? "Get started" : "Commencer")
+                  : (locale === "en-CA" ? `Choose ${plan.name}` : `Choisir ${plan.name}`)}
             </button>
           </article>
         ))}

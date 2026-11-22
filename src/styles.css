@@ -4935,3 +4935,8 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); box-sha
 .mobile-bottom-nav { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); }
 .mobile-bottom-link { min-width: 0; padding-inline: 0.15rem; font-size: 0.66rem; text-align: center; line-height: 1.15; }
 .mobile-bottom-link span:last-child { overflow-wrap: anywhere; }
+/* Pastilles de compteur : le vrai nombre, même à 3 chiffres */
+.icon-badge, .sidebar-badge, .mobile-link-badge { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.icon-badge { min-width: 18px; padding: 0 5px; }
+.mobile-link-badge { min-width: 16px; padding: 0 4px; right: -10px; }
+@media (max-width: 960px) { .icon-button-search { display: none; } .app-topbar-actions { gap: 0.45rem; } }

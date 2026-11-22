@@ -298,6 +298,7 @@ export type Conversation = {
   request_title?: string | null;
   last_message?: string | null;
   last_message_at?: string | null;
+  unread_count?: number | null;
 };
 
 export type Message = {

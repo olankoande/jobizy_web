@@ -28,6 +28,11 @@ export function AppShell() {
   const unreadCount = notifications.filter((item) => !item.is_read).length;
   const [messagesUnread, setMessagesUnread] = useState(0);
 
+  // Le tiroir se referme dès que la page change, quel que soit le lien ou le bouton utilisé
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
   // Nombre réel de messages non lus : actualisé au changement de page, au retour sur l'onglet et toutes les 30 s
   useEffect(() => {
     if (!session) {
@@ -217,8 +222,8 @@ export function AppShell() {
             <div className="topbar-actions">
               <div className="public-actions">
                 {langSelect}
-                <button className="ghost-button" onClick={() => navigate(`/${locale}/connexion`)} type="button">{t(locale, "signIn")}</button>
-                <button className="primary-button" onClick={() => navigate(`/${locale}/inscription`)} type="button">{t(locale, "signUp")}</button>
+                <button className="ghost-button" onClick={() => { setMobileMenuOpen(false); navigate(`/${locale}/connexion`); }} type="button">{t(locale, "signIn")}</button>
+                <button className="primary-button" onClick={() => { setMobileMenuOpen(false); navigate(`/${locale}/inscription`); }} type="button">{t(locale, "signUp")}</button>
               </div>
             </div>
           </div>

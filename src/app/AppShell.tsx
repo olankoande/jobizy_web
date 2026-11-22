@@ -190,18 +190,22 @@ export function AppShell() {
     return (
       <div className="site-shell site-shell-public">
         <header className="topbar topbar-public">
-          {brandButton}
           <button
             aria-expanded={mobileMenuOpen}
-            aria-label="Afficher la navigation"
+            aria-label={t(locale, "menu")}
             className="secondary-button mobile-nav-toggle"
             onClick={() => setMobileMenuOpen((current) => !current)}
             type="button"
           >
             <AppIcon className="button-icon" name="menu" />
-            {t(locale, "menu")}
           </button>
+          {brandButton}
+          {mobileMenuOpen ? <button aria-label="Fermer" className="public-scrim" onClick={() => setMobileMenuOpen(false)} type="button" /> : null}
           <div className={mobileMenuOpen ? "mobile-menu mobile-menu-open" : "mobile-menu"}>
+            <div className="drawer-head">
+              <span className="drawer-title"><img alt="" src="/logo.png" />{t(locale, "brand")}</span>
+              <button aria-label="Fermer" className="icon-button" onClick={() => setMobileMenuOpen(false)} type="button">✕</button>
+            </div>
             <nav className="topnav" role="navigation">
               {publicLinks.map((item) => (
                 <button key={item.href} onClick={() => { navigate(item.href); setMobileMenuOpen(false); }} type="button">
@@ -219,7 +223,6 @@ export function AppShell() {
             </div>
           </div>
         </header>
-
         <main className="page-wrap">
           {notices}
           <Outlet />
